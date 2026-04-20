@@ -1,0 +1,48 @@
+Arrivée : 01/04/26
+Découverte du labo, lecture de l'article "a gentle introduction to Semantic Subtyping" de Giuseppe Castagna et Alain Frisch
+
+02/04/26
+Lecture de l'article "Implementing Set-Theoretic Types" de Mickaël Laurent et Kim Nguyên 
+
+03/04/26
+Début du travail sur le witness : Ajout de la prise en charge des intervalles (int), des types énumérés (dont bool et string) et des Arrows (fonctions). Création d'un type qui est forcément un type singleton. Début de création des tests pour witness_interval.
+
+07/04/26
+Création des tests pour Int et Enums, découvertes et corrections de nombreux bugs. Arrow a été entièrement retravaillée, début de Tuple (car obligatoire pour Arrow)
+
+08/04/26
+Correction d'un gros bug de Enum, abandon (pour l'instant) de Arrow, création du code et des tests pour Tuple, restructuration d'une partie de Witness (à continuer)) et de test_witness.
+
+09/04/26
+Ajout du code et des Tests de Tags. Ajout du code de Arrow ? Le vérifier avec Kim. Ajout de tests pour Arrow. Questionnement sur les types récursifs : comment les handles ? -> Repenser tags et tuples pour faire de la mémoïsation avec dnf. Pétage de crâne
+
+10/04/26
+Matinée en distanciel, j'ai cloné le github sur mon pc (il ne compile pas encore). Ajout de la mémoïsation pour tag et tuple : Ca marche ! (environ). Réunion avec Kim pour revoir tout ça et réagencer le code. J'ai enlevé Empty de mon type singleton, ajout du type option de partout. Début du réagencement de la mémoïsation sur les tags : ils sont bugés. Relire mes notes.
+
+13/04/26
+Finition de la mémoïsation : passage à la Hashtbl réussi. Transformation de test_witness.ml en une library de dune pour faire des tests propres. J'ai essayé de réutiliser les tests de tests.ml, mais ça s'est révélé infructueux. Début des records : Kim m'a expliqué leur manière de fonctionner, on commence par une manière simple de calculer le witness.
+
+14/04/26
+Implémentation de Records : beaucoup de galère, notamment sur l'extraction du binding et des tails. Le code final n'est pas convaincant du tout. Je ne suis pas sûr qu'il marche, j'y retourne demain. 
+
+15/04/26
+Refonte complète de Records : 
+- pour chaque paire (l_i, f_i) de binding, on construit (l_i, witness(f_i))
+- Pour chaque paire (L_i, e_i), on crée l'_i n'appartenant ni à L_i ni aux labels de bindings, et on crée (L_i, witness (e_i&&tail))
+- On rajoute witness(tail) si celle-ci n'est pas optionnelle
+Réagencement du code pour coller à la structure du code de SSTT.
+
+16/04/26
+Fin des tests pour les records, fin de la réagencement du code, début de la formalisation : écriture des règles d'inférences, j'ai commencé un typst, début de proto-rédaction.
+
+17/04/26 :
+Réunion avec Kim, discussion sur comment faire la preuve :
+- Définition de w:t
+- Définition de t ~> w
+- Preuve de la terminaison de t ~> w
+- Mq "si /O |-_m t ~> alors w:t"
+Refactorisation du code de mk_mem.
+
+20/04/26 :
+Début de la preuve. 
+w:t a été défini, t ~> w aussi, galère sur la preuve de la terminaison.
