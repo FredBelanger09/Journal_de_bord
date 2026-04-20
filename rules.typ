@@ -157,3 +157,29 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
 ))
 
 #align(center, exemple_w1)
+
+
+#let new_w_base(wit : $c$, typ : $b$) = rule(
+  name : "Base",
+  [$wit in [|typ|]$],
+  [$wit : typ$]
+)
+
+#let new_w_arrow(wit1 : $w_1$, wit2 : $w_2$, typ1 : $t_1$, typ2 : $t_2$) = rule(
+  name : $->$,
+  [$wit1 -> wit2 lt.eq.slant typ1 -> typ2$],
+  [$|- wit1 -> wit2 : typ1 -> typ2$])
+
+#let new_w_tuple(wit1 : $w_1$, wit2 : $w_2$, typ1 : $t_1$, typ2 : $t_2$) = rule(
+  name : $->$,
+  [$|-wit1 : typ1$],
+  [$|- wit2 : typ2$],
+  [$|- (wit1 * wit2) : (typ1 * typ2)$])
+
+#let new_rule_w = align(center, rule-set(
+  prooftree(new_w_base()),
+  prooftree(new_w_arrow()),
+  prooftree(new_w_tuple())
+))
+
+#new_rule_w

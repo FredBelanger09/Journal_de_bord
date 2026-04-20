@@ -2,7 +2,7 @@
 #import "@preview/quick-maths:0.2.1": shorthands
 
 #import "macros.typ": BeauB, BeauC, BigOne, BigZero, not_temoin
-#import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1
+#import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1, new_rule_w
 
 #show: shorthands.with(($|-$, $tack.r$), ($|1$, $BigOne$), ($|0$, $BigZero$), ($\_:$, not_temoin))
 
@@ -41,7 +41,7 @@ Les tags, les n-uplets et les records ne sont en réalité que des cas particuli
 == Définition de $w:t$
 On veut définir un prédicat $w : t$ qui est vrai si et seulement si w est un témoin de t, avec les règles suivantes :
 
-#rule_w
+#new_rule_w
 
 
 == Définition de $t ~> w$
@@ -56,9 +56,9 @@ Cela nous donne l'arbre :
 
 #exemple_t1
 
-On peut ainsi vérifier que $w = (42, "Int" -> BigZero)$ est bien un témoin de $ t = ("Int", ("Int" -> "Bool") or ("Bool" -> "Int"))$
+On peut ainsi vérifier que $w = (42, "Int" -> BigZero)$ est bien un témoin de $ t = ("Int", ("Int" -> "Bool") or ("Bool" -> "Int"))$ :
 
-#exemple_w1
+#align(center,exemple_w1)
 
 
 == Preuve de la terminaison de $t ~> w$
@@ -75,7 +75,7 @@ On a aussi un résultat qui dit que $forall t , t lt.eq.slant BigOne * BigOne =>
 
 Or $(t_1 *t_2) and (t_3 * t_4) = (t_1 and t_3 * t_2 and t_4)$, donc $and.big (t_1 * t_2) = (and.big t_1 * and.big t_2) lt.eq.slant BigOne * BigOne$, donc $and.big (t_1 * t_2) = or.big (t'_1, t'_2)$
 
-
+Il suffit donc juste que regarder à l'intérieur de chacun des termes de $or.big (t'_1,t'_2)$ si on trouve un témoin.
 
 
 
