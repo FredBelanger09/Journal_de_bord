@@ -4,7 +4,7 @@
 #import "macros.typ": BeauB, BeauC, BigOne, BigZero, not_temoin
 #import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1, new_rule_w, new_w_base, new_w_arrow, new_w_tuple, t_base,t_arrow, t_mem, t_or_1, t_or_2, t_tuple
 
-#show: shorthands.with(($|-$, $tack.r$), ($|1$, $BigOne$), ($|0$, $BigZero$), ($\_:$, not_temoin))
+#show: shorthands.with(($|-$, $tack.r$))
 
 #show: arkheion.with(
   title: "Rapport de stage",
@@ -21,17 +21,18 @@
 
 = Introduction
 Le but du stage a été de créer une fonction permettant, pour tout type non-vide, de trouver un habitant de ce type, appelé témoin. Ce témoin permet d'afficher un exemple lors de la diffusion d'un message d'erreur de mauvais typage.
+
 = Présentation des types
 
 On travaille sur les types ensemblistes
-$ t = b | alpha | t -> t | t * t | t or t | t and t | not t | |0 | |1 $
+$ t = b | alpha | t -> t | t * t | t or t | t and t | not t | BigZero | BigOne $
 Où $b in BeauB$ sont les cas de bases (en particuliers les constances $c in BeauC$ ) et $alpha in nu$ les variables de types. $BeauB$ est composé de Int (l'ensemble des entiers relatifs) et Enum (l'ensemble des types énumérés, par exemple bool).
 
 Dans un 1er temps, nous allons ignorer les variables de types pour la construction du témoin.
 On propose comme type témoin :
-$ w = i in [|"Int"|] | e in [|"Enum"|] | t -> t | w * w $
-En pratique, nous avons aussi rajouté des extensions pour les tags et les records, ce qui donne
-$ w' = w | "tag"(w) | w * w * ... * w | {l_i : w ... l_n : w} $
+$ w = c | t -> t | w * w $
+En pratique, on a $c = i in [|"Int"|] | e in [|"Enum"|]$, et nous avons aussi rajouté des extensions pour les tags, les n-uplets et les records, ce qui donne :
+$ w = i in [|"Int"|] | e in [|"Enum"|]| t -> t | w * w | "tag"(w) | w * w * ... * w | {l_i : w ... l_n : w} $
 Les tags, les n-uplets et les records ne sont en réalité que des cas particuliers des tuples, on ne les traitera donc pas sur le plan théorique.
 
 
@@ -65,34 +66,38 @@ On peut ainsi vérifier que $w = (42, "Int" -> BigZero)$ est bien un témoin de 
 
 On peut déjà noter que pour tout type t, $Delta$ a une taille maximale finie, car il est au maximum de la taille l'ensemble de tout les sous-types de t (qui sont, par définition de t, finis).
 
+A chaque appel récursif, $Delta$ grandit, c'est donc une condition suffisante pour prouver la terminaison de l'algorithme. En pratique, ceci n'est utilisé que pour traiter les cas récursifs, nous proposons donc une preuve alternative pour les autres cas.
+
+
 En peut aussi dire qu'en pratique, nos types sont stockés sous la forme de DNF, on a donc :
 
-$ t = or.big (and.big b) or.big (and.big (t_1 * t_2)) or.big (and.big t_1 -> t_2) $
-
-Les cas de b et A ne sont pas récursifs, il finissent donc forcément.
+$ t = or.big (and.big b) or.big (and.big t_1 -> t_2) or.big (and.big (t_1 * t_2)) $
 
 On a aussi un résultat qui dit que $forall t , t lt.eq.slant BigOne * BigOne => exists (t_1^i, t_2^i), t tilde.eq or.big_i (t_1^i, t_2^i)$
 
+
+
 Or $(t_1 *t_2) and (t_3 * t_4) = (t_1 and t_3 * t_2 and t_4)$, donc $and.big (t_1 * t_2) = (and.big t_1 * and.big t_2) lt.eq.slant BigOne * BigOne$, donc $and.big (t_1 * t_2) = or.big (t'_1, t'_2)$
 
-Il suffit donc juste que regarder à l'intérieur de chacun des termes de $or.big (t'_1,t'_2)$ si on trouve un témoin.
+Il suffit donc de montrer que $t ~> w$ termine si $t = b$, $t = t_1 -> t_2$, $t=t_1 * t_2$ et $t = t_1 or t_2$
 
-Montrons par récurrence que pour un type t, notre algo termine.
+Si $t = b$, alors il suffit de prendre un atome de b, ce qui se fait en temps fini.
 
-Si t n'a qu'une composante b ou une composante ->, alors on peut calculer b ~> w et t1 -> ~> w ssi w =< b ou ->. Or on sait que ceci se fait en temps fini, donc notre algo termine dans ces cas.
+Si $t= t_1 -> t_2$, alors $t_1 -> t_2$ est une solution, donc cela se fait aussi en temps fini.
 
-Dans chaque appel récursif, Delta augmente de taille, or Delta est borné, donc le nombre d'appel récursifs maximum possible est fini.
+Supposons maintenant que $t_1 ~> w_1$ et $t_2 ~> w_2$ finissent.
 
-Soit t = t1, t2 , on suppose wit(t1) wit(t2), donc par la règle d'inférence tuple, wit(t1, t2) finit.
+Si $t = t_1 * t_2$, alors par $*_t$, $t_1 * t_2 ~> w_1 * w_2$ termine si $t_1 ~> w_1$ et $t_2 ~> w_2$ terminent, ce qui est le cas par hypothèse. Donc $t_1 * t_2 ~> w_1 * w_2$ termine.
 
-Soit t = t1 ou t2, on suppose par récu que mon algo finit sur t1 et t2. Or f(t1 ou t2) est égal à wit(t1) ou wit(t2) selon les cas.
-Ces deux cas finissent selon notre hypothèse par récurrence.
-Donc si wit(t1) et wit(t2) finissent, wit(t1 ou t2) finit.
+Si $t = t_1 or t_2$, alors :
+- Par $or_1_t$, $t_1 or t_2 ~> w$ termine si $t_1 ~> w$ termine, ce qui est le cas par hypothèse
+- Par $or_2_t$, $t_1 or t_2 ~> w$ termine si $t_2 ~> w$ termine, ce qui est le cas par hypothèse.
+Donc si $t = t_1 or t_2$, alors $t ~> w$ termine.
 
-Donc notre cas de base est validé, et notre récurrence aussi, donc pout tout type t, wit(t) termine.
+Donc par induction, pour tout type t, $t ~> w$ termine.
 
 
-PARTIE 4 :
+== Preuve que si $emptyset |-""_m t ~> w$ alors $ w:t$
  
 Montrons par récurrence que $"Si" emptyset |-""_s t ~> w "alors" w:t$ :
 
@@ -104,155 +109,12 @@ Supposons par induction que $P(t_1,w_1)$ et $P(t_2,w_2)$ et montrons que $P(t_1 
 
 Supposons par induction que  $P(t_1,w)$ et $P(t_2,w)$ et montrons que $P(t_1 or t_2, w)$. Si $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc $w:t_1$, donc par ?????????
 
-Donc pour tout type t, $"Si" emptyset |-""_s t ~> w "alors" w:t$
+Donc pour tout type t, $"Si" emptyset |-""_m t ~> w "alors" w:t$
 
+= En Pratique
 
 
 
 
 
-
-= Expliquer ça à des canards 
-
-On a des types ensemblistes $t = "Int" | "Enum" | t or t | t and t | not t | t * t | t -> t | BigZero "(l'ensemble vide)" | BigOne "(L'ensemble de tout les types)"$. On veut prouver que pour tout type non-vide, on peut créer un témoin de t. Un témoin est une constante appartenant à t (genre pour t = Int, on aura w=42, t=(Bool, $[16,+ oo[$) donnera w= (True, 16), etc).Le seul cas spécial est si $t = t_1 -> t_2$, alors on ne cherche pas à trouver des témoin de $t_1$ et $t_2$ et on renvoie juste $w = t_1 -> t_2$ (en gros).
-
-On veut donc :
-- Définir $w:t$ (w est un témoin de t) avec des règles d'inférences
-- définir $Delta |-""_m t ~> w$ (Dans l'environnement $Delta$, t produit w avec notre algorithme)
-- Montrer la terminaison de $Delta |-""_m t ~> w$
-- Montrer que si $emptyset |- ""_m t ~> w$ alors $w:t$
-
-NB : dans notre algo $t ~> w$, $ Delta$ est un outil de mémoïsation afin de détecter les définitions récursives.
-
-Les règle d'inférences actuelles sont :
-
-Pour $w:t$ :
-#rule_w
-
-Pour $Delta |- t ~> w$ :
-#rule_t
-
-Problème 1 : ces définitions sont vachements similaires, donc le si $t~> w$ alors $w:t$ fait très raisonnement circulaire
-
-Problème 2 : Je peux prouver la terminaison car $Delta$ a une taille max finie et augmente à chaque étape, mais je sais pas comment formaliser ça
-
-Problème 3 : J'arrive pas à faire le raisonnement par induction pour la dernière partie
-
-
-Pour 
-
-
-
-#pagebreak()
-
-
-
-
-
-
-
-
-
-
-==== Paragraph
-#lorem(20)
-
-#lorem(20)
-
-= Math
-
-*Inline:* Let $a$, $b$, and $c$ be the side
-lengths of right-angled triangle. Then, we know that: $a^2 + b^2 = c^2$
-
-*Block without numbering:*
-
-#math.equation(block: true, numbering: none, [
-  $
-    sum_(k=1)^n k = (n(n+1)) / 2
-  $
-])
-
-*Block with numbering:*
-
-As shown in @equation.
-
-$
-  sum_(k=1)^n k = (n(n+1)) / 2
-$ <equation>
-
-*More information:*
-- #link("https://typst.app/docs/reference/math/equation/")
-
-
-= Citation
-
-You can use citations by using the `#cite` function with the key for the reference and adding a bibliography. Typst supports BibLateX and Hayagriva.
-
-```typst
-#bibliography("bibliography.bib")
-```
-
-Single citation @Cas05b. Multiple citations @Cas05b @Cas05b. In text #cite(<Cas05b>, form: "prose")
-
-*More information:*
-- #link("https://typst.app/docs/reference/meta/bibliography/")
-- #link("https://typst.app/docs/reference/meta/cite/")
-
-= Figures and Tables
-
-
-#figure(
-  table(
-    align: center,
-    columns: (auto, auto),
-    row-gutter: (2pt, auto),
-    stroke: 0.5pt,
-    inset: 5pt,
-    [header 1], [header 2],
-    [cell 1], [cell 2],
-    [cell 3], [cell 4],
-  ),
-  caption: [#lorem(5)],
-) <table>
-
-
-*More information*
-
-- #link("https://typst.app/docs/reference/meta/figure/")
-- #link("https://typst.app/docs/reference/layout/table/")
-
-= Referencing
-
-*More information:*
-
-- #link("https://typst.app/docs/reference/meta/ref/")
-
-= Lists
-
-*Unordered list*
-
-- #lorem(10)
-- #lorem(8)
-
-*Numbered list*
-
-+ #lorem(10)
-+ #lorem(8)
-+ #lorem(12)
-
-*More information:*
-- #link("https://typst.app/docs/reference/layout/enum/")
-- #link("https://typst.app/docs/reference/meta/cite/")
-
-
-// Add bibliography and create Bibiliography section
-#bibliography("bibliography.bib")
-
-// Create appendix section
-#show: arkheion-appendices
-=
-
-== Appendix section
-
-#lorem(100)
 

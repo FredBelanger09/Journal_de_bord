@@ -8,7 +8,7 @@ RULES FOR w:t :
 
 
 #let w_base_case(typ: $b$, con: $c$) = rule(
-  name: [Base],
+  name: [$"Base"_w$],
   [$con in [|typ|]$],
   [$|- con : typ$],
 )
@@ -59,32 +59,32 @@ RULES FOR w:t :
 RULES FOR $t ~> w$ :
 
 #let t_base(Delta: $Delta$, typ: $b$, wit: $w$, con: $c$) = rule(
-  name: [Base],
+  name: [$"Base"_t$],
   [$wit=con lt.eq.slant typ$],
   [$Delta |-""_s typ ~> wit$],
 )
 
 #let t_arrow(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$, wit1: $w_1$, wit2: $w_2$) = rule(
-  name: [$->$],
+  name: [$->_t$],
   [$wit = wit1 -> wit2 lt.eq.slant typ1 -> typ2$],
   [$Delta |-""_s typ1 -> typ2 ~> wit$],
 )
 
 #let t_tuple(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit1: $w_1$, wit2: $w_2$) = rule(
-  name: [$*$],
+  name: [$*_t$],
   [$Delta |-""_m typ1 ~> wit1$],
   [$Delta |-""_m typ2 ~> wit2$],
   [$Delta |-""_s typ1 * typ2 ~> wit1 * wit2$],
 )
 
 #let t_or_1(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
-  name: [$or_1$],
+  name: [$or_1_t$],
   [$Delta |-""_m typ1 ~> wit$],
   [$Delta |-""_s typ1 or typ2 ~> wit$],
 )
 
 #let t_or_2(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
-  name: [$or_2$],
+  name: [$or_2_t$],
   [$Delta |-""_m typ2 ~> wit$],
   [$Delta |-""_s typ1 or typ2 ~> wit$],
 )
@@ -160,18 +160,18 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
 
 
 #let new_w_base(wit : $c$, typ : $b$) = rule(
-  name : "Base",
+  name : $"Base"_w$,
   [$wit in [|typ|]$],
   [$wit : typ$]
 )
 
 #let new_w_arrow(wit1 : $w_1$, wit2 : $w_2$, typ1 : $t_1$, typ2 : $t_2$) = rule(
-  name : $->$,
+  name : $->_w$,
   [$wit1 -> wit2 lt.eq.slant typ1 -> typ2$],
   [$|- wit1 -> wit2 : typ1 -> typ2$])
 
 #let new_w_tuple(wit1 : $w_1$, wit2 : $w_2$, typ1 : $t_1$, typ2 : $t_2$) = rule(
-  name : $->$,
+  name : $*_w$,
   [$|-wit1 : typ1$],
   [$|- wit2 : typ2$],
   [$|- (wit1 * wit2) : (typ1 * typ2)$])
