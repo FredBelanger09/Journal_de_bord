@@ -2,7 +2,7 @@
 #import "@preview/quick-maths:0.2.1": shorthands
 
 #import "macros.typ": BeauB, BeauC, BigOne, BigZero, not_temoin
-#import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1, new_rule_w
+#import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1, new_rule_w, new_w_base, new_w_arrow, new_w_tuple, t_base,t_arrow, t_mem, t_or_1, t_or_2, t_tuple
 
 #show: shorthands.with(($|-$, $tack.r$), ($|1$, $BigOne$), ($|0$, $BigZero$), ($\_:$, not_temoin))
 
@@ -77,6 +77,35 @@ Or $(t_1 *t_2) and (t_3 * t_4) = (t_1 and t_3 * t_2 and t_4)$, donc $and.big (t_
 
 Il suffit donc juste que regarder à l'intérieur de chacun des termes de $or.big (t'_1,t'_2)$ si on trouve un témoin.
 
+Montrons par récurrence que pour un type t, notre algo termine.
+
+Si t n'a qu'une composante b ou une composante ->, alors on peut calculer b ~> w et t1 -> ~> w ssi w =< b ou ->. Or on sait que ceci se fait en temps fini, donc notre algo termine dans ces cas.
+
+Dans chaque appel récursif, Delta augmente de taille, or Delta est borné, donc le nombre d'appel récursifs maximum possible est fini.
+
+Soit t = t1, t2 , on suppose wit(t1) wit(t2), donc par la règle d'inférence tuple, wit(t1, t2) finit.
+
+Soit t = t1 ou t2, on suppose par récu que mon algo finit sur t1 et t2. Or f(t1 ou t2) est égal à wit(t1) ou wit(t2) selon les cas.
+Ces deux cas finissent selon notre hypothèse par récurrence.
+Donc si wit(t1) et wit(t2) finissent, wit(t1 ou t2) finit.
+
+Donc notre cas de base est validé, et notre récurrence aussi, donc pout tout type t, wit(t) termine.
+
+
+PARTIE 4 :
+ 
+Montrons par récurrence que $"Si" emptyset |-""_s t ~> w "alors" w:t$ :
+
+Si $b ~> w$, alors par "Base", $ w = c lt.eq.slant b$, donc $w = c in [|b|]$, donc $w:b$.
+
+Si $t_1 -> t_2 ~> w$, alors par $->$, $w = w_1 -> w_2 lt.eq.slant t_1 -> t_2$ , donc par $->_w$, $w_1 -> w_2 : t_1 -> t_2$
+
+Supposons par induction que $P(t_1,w_1)$ et $P(t_2,w_2)$ et montrons que $P(t_1 *t_2, w_1 * w_2)$. Si $(t_1 * t_2) ~> (w_1 * w_2)$, alors par $*_t$, $t_1 ~> w_1$ et $t_2 ~> w_2$, donc par hypothèse, $w_1 :t_1$ et $w_2 :t_2$, donc par $*_w$, $(w_1 * w_2) : (t_1 * t_2)$
+
+Supposons par induction que  $P(t_1,w)$ et $P(t_2,w)$ et montrons que $P(t_1 or t_2, w)$. Si $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc $w:t_1$, donc par ?????????
+
+Donc pour tout type t, $"Si" emptyset |-""_s t ~> w "alors" w:t$
+
 
 
 
@@ -85,7 +114,7 @@ Il suffit donc juste que regarder à l'intérieur de chacun des termes de $or.bi
 
 = Expliquer ça à des canards 
 
-On a des types ensemblistes $t = "Int" | "Enum" | t or t | t and t | not t | t * t | t -> t | BigZero "(l'ensemble vide)" | BigOne "(L'ensemble de tout les types)"$. On veut prouver que pour tout type non-vide, on peut créer un témoin de t. Un témoin est une constante appartenant à t (genre pour t = Int, on aura w=42, t=(Bool, $[16,+ infinity[$) donnera w= (True, 16), etc).Le seul cas spécial est si $t = t_1 -> t_2$, alors on ne cherche pas à trouver des témoin de $t_1$ et $t_2$ et on renvoie juste $w = t_1 -> t_2$ (en gros).
+On a des types ensemblistes $t = "Int" | "Enum" | t or t | t and t | not t | t * t | t -> t | BigZero "(l'ensemble vide)" | BigOne "(L'ensemble de tout les types)"$. On veut prouver que pour tout type non-vide, on peut créer un témoin de t. Un témoin est une constante appartenant à t (genre pour t = Int, on aura w=42, t=(Bool, $[16,+ oo[$) donnera w= (True, 16), etc).Le seul cas spécial est si $t = t_1 -> t_2$, alors on ne cherche pas à trouver des témoin de $t_1$ et $t_2$ et on renvoie juste $w = t_1 -> t_2$ (en gros).
 
 On veut donc :
 - Définir $w:t$ (w est un témoin de t) avec des règles d'inférences
