@@ -32,7 +32,7 @@ Dans un 1er temps, nous allons ignorer les variables de types pour la constructi
 On propose comme type témoin :
 $ w = c | t -> t | w * w $
 En pratique, on a $c = i in [|"Int"|] | e in [|"Enum"|]$, et nous avons aussi rajouté des extensions pour les tags, les n-uplets et les records, ce qui donne :
-$ w = i in [|"Int"|] | e in [|"Enum"|]| t -> t | w * w | "tag"(w) | w * w * ... * w | {l_i : w ... l_n : w} $
+$ w = i in [|"Int"|] | e in [|"Enum"|]| t -> t | w * w * ... * w | "tag"(w) | {l_i : w ... l_n : w} $
 Les tags, les n-uplets et les records ne sont en réalité que des cas particuliers des tuples, on ne les traitera donc pas sur le plan théorique.
 
 
@@ -112,6 +112,32 @@ Supposons par induction que  $P(t_1,w)$ et $P(t_2,w)$ et montrons que $P(t_1 or 
 Donc pour tout type t, $"Si" emptyset |-""_m t ~> w "alors" w:t$
 
 = En Pratique
+L'algorithme va essayer de trouver un témoin dans chacune des 6 grandes catégories (Int, Enum, Arrows, Tag, Tuple, Record) dans cet ordre, et s'arrêter dès qu'un est trouvé. Si aucun n'est trouvé, on considère le type comme vide et on lève une exception.
+== Cas de bases
+
+=== Int
+Les entiers sont représentés comme des intervalles. Il existe 3 cas possibles :
+- $t = ]-oo ; +oo[$ : l'algorithme retourne 42
+- $t = ]-oo; i ] " " or " " [ i ; +oo[ $ :  retourne $i$
+- $t = [i_1; i_2]$ : retourne $i_1$
+
+=== Enum
+Enum contient tout les types énumérés, incluant notamment les booléens (et les Strings ?). Il peuvent être définis de 2 manières :
+- comme une union des constantes appartenant à $t$ : on renvoie la première
+- comme une union des constantes appartenant à $not t$ : On retourne une constante de Enum de taille n, n n'étant la taille d'aucune des constantes de $not t $
+
+=== Arrow
+Etant donné qu'un type fonction est forcément habité, celà n'a pas de sens d'aller chercher un témoin dans chacune de ses branche, et peut même être contreproductif.
+On va donc prendre tout les atomes positifs de t, et y rajouter un par un les atomes négatifs de t. Si au moment d'un ajout, l'intersection des atomes positifs et négatifs donne un sous-type de t, c'est notre témoin.
+
+== Constructeurs
+
+=== Tuple
+Les n-uplets peuvent, comme les Enum, être défini comme les éléments présents dans $t$ ou comme les éléments présents dans $not t$. 
+- Si on a la liste des éléments présents dans $t$, on choisit l'élément e de plus petite arité dont aucun élément n'est vide, et on renvoie un n-uplet de la même taille  et dont chaque élément est le témoin du type à la même position dans e.
+- Si on a la liste des éléments présents dans $not t$, on trouve le plus petit entier n tel qu'il n'y ai aucun n-uplet de cette arité dans la liste, et on en renvoie un témoin (usuellement le n-uplet (0,1,...,n))
+
+=== Tag
 
 
 
