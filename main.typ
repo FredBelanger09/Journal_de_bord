@@ -180,7 +180,7 @@ Si $t = t_1 or t_2$, alors :
 - Par $or_2_t$, $t_1 or t_2 ~> w$ termine si $t_2 ~> w$ termine, ce qui est le cas par hypothèse.
 Donc si $t = t_1 or t_2$, alors $t ~> w$ termine.
 
-Donc par induction, pour tout type t, $t ~> w$ termine.
+Donc par induction, pour tout type t, $t ~> w$ termine. $square$
 
 
 == Preuve que si $emptyset |-""_m t ~> w$ alors $w:t$
@@ -195,4 +195,4 @@ Supposons par induction que $P(t_1,w_1)$ et $P(t_2,w_2)$ et montrons que $P(t_1 
 
 Supposons par induction que  $P(t_1,w)$ et $P(t_2,w)$ et montrons que $P(t_1 or t_2, w)$. Si $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc $w:t_1$, donc par ?????????
 
-Donc pour tout type t, $"Si" emptyset |-""_m t ~> w "alors" w:t$
+Donc pour tout type t, $"Si" emptyset |-""_m t ~> w "alors" w:t$ $square$ 
