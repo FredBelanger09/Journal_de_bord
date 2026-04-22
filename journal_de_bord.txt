@@ -46,3 +46,9 @@ Refactorisation du code de mk_mem.
 20/04/26 :
 Début de la preuve. 
 w:t a été défini, t ~> w aussi, galère sur la preuve de la terminaison.
+
+21/04/26 :
+Journée en télétravail. Preuve de la terminaison de t ~> w et de si /O |-_m t ~> alors w:t" fini !
+
+22/04/26 :
+Mini-réu avec Kim : patch de la règle arrow de w:t, début de propreté du rapport. J'ai entièrement réécrit les tests mainteant que je sais utilisé Ast et repl.
