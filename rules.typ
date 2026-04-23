@@ -1,57 +1,40 @@
 #import "@preview/curryst:0.6.0": prooftree, rule, rule-set
 #import "@preview/quick-maths:0.2.1": shorthands
-#import "macros.typ": BigZero, BigOne, Bool, Enum, False, Int, True
-
-
-
+#import "macros.typ": *
 RULES FOR w:t :
 
-
-#let w_base_case(typ: $b$, con: $c$) = rule(
-  name: [$"Base"_w$],
-  [$con in [|typ|]$],
-  [$|- con : typ$],
+#let w_base(wit: $c$, typ: $b$) = rule(
+  name: $"Base"_w$,
+  [$wit in [|typ|]$],
+  [$wit : typ$],
 )
 
 #let w_arrow(wit: $w$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: [$->$],
+  name: $->_w$,
   [$wit lt.eq.slant typ1 -> typ2$],
   [$|- wit : typ1 -> typ2$],
 )
 
-#let w_and(wit: $w$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: [$and$],
-  [$|- wit : typ1$],
-  [$|- wit : typ2$],
-  [$|- wit : typ1 and typ2$],
-)
-
-#let w_or_1(wit: $w$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: [$or_1$],
-  [$|- wit : typ1$],
-  [$|- wit : typ1 or typ2$],
-)
-
-#let w_or_2(wit: $w$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: [$or_2$],
-  [$|- wit : typ2$],
-  [$|- wit : typ1 or typ2$],
-)
-
 #let w_tuple(wit1: $w_1$, wit2: $w_2$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: [$times$],
-  [$|- wit1 : typ1$],
+  name: $times_w$,
+  [$|-wit1 : typ1$],
   [$|- wit2 : typ2$],
   [$|- (wit1 times wit2) : (typ1 times typ2)$],
 )
 
+#let w_sub(wit: $w$, typ1: $t$, typ2 : $t'$) = rule(
+  name : $"Sous-type"_w$,
+  [$|- wit : typ2$],
+  [$typ2 lt.eq.slant typ1$],
+  [$|- wit : typ1$],
+)
+
+
 #let rule_w = align(center, rule-set(
-  prooftree(w_base_case()),
+  prooftree(w_base()),
   prooftree(w_arrow()),
-  prooftree(w_or_1()),
-  prooftree(w_or_2()),
-  prooftree(w_and()),
   prooftree(w_tuple()),
+  prooftree(w_sub()),
 ))
 
 #rule_w
@@ -125,7 +108,7 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
       rule(
         name: $Int -> Bool in.not Delta$,
         t_arrow(
-          Delta: $Delta' = Delta union {Int -> Bool}$,
+          Delta: $Delta union {Int -> Bool}$,
           typ1: Int,
           typ2: Bool,
           wit: $w_2 = Int -> BigZero$,
@@ -145,10 +128,14 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
 
 #let exemple_w1 = prooftree(rule(
   name: $times_w$,
-  w_base_case(typ: Int, con: $42$),
+  w_base(typ: Int, wit: $42$),
   rule(
-    name: $->_w$,
-    [$Int -> BigZero lt.eq.slant (Int -> Bool) or "Nil"$],
+    name: $"Sous-type"_w$,
+    rule(
+      name : $->_w$,
+      [$Int -> BigZero lt.eq.slant (Int -> Bool) $],
+    [$|- Int -> BigZero : (Int -> Bool)$]),
+    [$(Int -> Bool) lt.eq.slant (Int -> Bool) or "Nil"$],
     [$|- Int -> BigZero : (Int -> Bool) or "Nil"$],
   ),
   [$|- (42, Int -> BigZero) : (Int, (Int -> Bool) or "Nil")$],
@@ -157,44 +144,20 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
 #align(center, exemple_w1)
 
 
-#let new_w_base(wit: $c$, typ: $b$) = rule(
-  name: $"Base"_w$,
-  [$wit in [|typ|]$],
-  [$wit : typ$],
-)
-
-#let new_w_arrow(wit: $w$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: $->_w$,
-  [$wit lt.eq.slant typ1 -> typ2$],
-  [$|- wit : typ1 -> typ2$],
-)
-
-#let new_w_tuple(wit1: $w_1$, wit2: $w_2$, typ1: $t_1$, typ2: $t_2$) = rule(
-  name: $times_w$,
-  [$|-wit1 : typ1$],
-  [$|- wit2 : typ2$],
-  [$|- (wit1 times wit2) : (typ1 times typ2)$],
-)
-
-#let new_rule_w = align(center, rule-set(
-  prooftree(new_w_base()),
-  prooftree(new_w_arrow()),
-  prooftree(new_w_tuple()),
-))
-
-#new_rule_w
 
 #let exemple_w2 = prooftree(rule(
   name: $times_w$,
-  new_w_base(wit : 3, typ : Int),
+  w_base(wit: 3, typ: Int),
   rule(
     name: $times_w$,
-    new_w_base(wit : True, typ : Bool),
-    new_w_arrow(wit : $Int -> Int$, typ1 : BigZero, typ2: BigOne),
-    [$Int -> Int : BigZero -> BigOne$],
+    w_base(wit: True, typ: Bool),
+    w_arrow(wit: $Int -> Int$, typ1: BigZero, typ2: BigOne),
+
     [$(True, Int -> Int) : (Bool, BigZero -> BigOne)$],
   ),
   [$(3, (True, Int -> Int)) : (Int, (Bool, BigZero -> BigOne))$],
 ))
+
+Exemple w2 :
 
 #exemple_w2

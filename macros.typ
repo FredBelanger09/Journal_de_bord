@@ -13,3 +13,4 @@
 #let Nil = text(font: "New Computer Modern Math", [Nil])
 #let Tag = text(font: "New Computer Modern Math", [Tag])
 #let Tuple = text(font: "New Computer Modern Math", [Tuple])
+#let Any = text(font: "New Computer Modern Math", [Any])

@@ -2,7 +2,7 @@
 #import "@preview/quick-maths:0.2.1": shorthands
 
 #import "macros.typ": BeauB, BeauC, BigOne, BigZero, not_temoin
-#import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1, new_rule_w, new_w_base, new_w_arrow, new_w_tuple, t_base,t_arrow, t_mem, t_or_1, t_or_2, t_tuple
+#import "rules.typ": rule_w, rule_t, exemple_t1, exemple_w1, rule_w, w_base, w_arrow, w_tuple, t_base,t_arrow, t_mem, t_or_1, t_or_2, t_tuple
 
 #show: shorthands.with(($|-$, $tack.r$))
 
