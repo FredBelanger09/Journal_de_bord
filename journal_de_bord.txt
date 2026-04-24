@@ -56,3 +56,7 @@ Mini-réu avec Kim : patch de la règle arrow de w:t, début de propreté du rap
 23/04/26 :
 Séminaire de Gabrielle sur la détection de biais de fixation et comment l'éviter, notamment dans le médical. Ecriture du rapport, réajustement des règles d'inférence,
 on l'a rendu tout joli.
+
+
+
+Pour chaque variable alpha, on la considère comme any, et not alpha = any\alpha ? c'est nul

@@ -9,17 +9,17 @@ RULES FOR w:t :
   [$wit : typ$],
 )
 
-#let w_arrow(wit: $w$, typ1: $t_1$, typ2: $t_2$) = rule(
+#let w_arrow(wit: $w$, typ : $A$) = rule(
   name: $->_w$,
-  [$wit lt.eq.slant typ1 -> typ2$],
-  [$|- wit : typ1 -> typ2$],
+  [$wit lt.eq.slant typ$],
+  [$|- wit : typ$],
 )
 
 #let w_tuple(wit1: $w_1$, wit2: $w_2$, typ1: $t_1$, typ2: $t_2$) = rule(
   name: $times_w$,
   [$|-wit1 : typ1$],
   [$|- wit2 : typ2$],
-  [$|- (wit1 times wit2) : (typ1 times typ2)$],
+  [$|- (wit1, wit2) : (typ1 times typ2)$],
 )
 
 #let w_sub(wit: $w$, typ1: $t$, typ2 : $t'$) = rule(
@@ -57,18 +57,18 @@ RULES FOR $t ~> w$ :
   name: [$times_t$],
   [$Delta |-""_m typ1 ~> wit1$],
   [$Delta |-""_m typ2 ~> wit2$],
-  [$Delta |-""_s typ1 times typ2 ~> wit1 times wit2$],
+  [$Delta |-""_s typ1 times typ2 ~> (wit1, wit2)$],
 )
 
 #let t_or_1(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
   name: [$or_1_t$],
-  [$Delta |-""_m typ1 ~> wit$],
+  [$Delta |-""_s typ1 ~> wit$],
   [$Delta |-""_s typ1 or typ2 ~> wit$],
 )
 
 #let t_or_2(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
   name: [$or_2_t$],
-  [$Delta |-""_m typ2 ~> wit$],
+  [$Delta |-""_s typ2 ~> wit$],
   [$Delta |-""_s typ1 or typ2 ~> wit$],
 )
 
@@ -105,16 +105,14 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
     name: $t in.not Delta$,
     rule(
       name: $or_1_t$,
-      rule(
-        name: $Int -> Bool in.not Delta$,
+
         t_arrow(
-          Delta: $Delta union {Int -> Bool}$,
+          Delta: $Delta$,
           typ1: Int,
           typ2: Bool,
           wit: $w_2 = Int -> BigZero$,
         ),
-        [$Delta |-""_m Int -> Bool ~> w_2$],
-      ),
+      
       [$Delta = {(Int -> Bool) or "Nil"))} |-""_s (Int -> Bool) or "Nil") ~> w_2$],
     ),
     [$|-""_m t = (Int -> Bool) or "Nil") ~> w_2$],
@@ -151,7 +149,7 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
   rule(
     name: $times_w$,
     w_base(wit: True, typ: Bool),
-    w_arrow(wit: $Int -> Int$, typ1: BigZero, typ2: BigOne),
+    w_arrow(wit: $Int -> Int$, typ : $BigZero -> BigOne$),
 
     [$(True, Int -> Int) : (Bool, BigZero -> BigOne)$],
   ),

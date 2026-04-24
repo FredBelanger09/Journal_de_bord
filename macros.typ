@@ -3,6 +3,7 @@
 
 #let BeauC = "\u{1D49E}"
 #let BeauB = "\u{212C}"
+#let BeauV = "\u{1D4B1}"
 
 
 #let Int = text(font: "New Computer Modern Math", [Int])
