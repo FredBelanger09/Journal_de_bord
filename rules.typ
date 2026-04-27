@@ -6,27 +6,27 @@ RULES FOR w:t :
 #let w_base(wit: $c$, typ: $b$) = rule(
   name: $"Base"_w$,
   [$wit in [|typ|]$],
-  [$wit : typ$],
+  [$wit >> typ$],
 )
 
 #let w_arrow(wit: $w$, typ : $A$) = rule(
   name: $->_w$,
   [$wit lt.eq.slant typ$],
-  [$|- wit : typ$],
+  [$|- wit >> typ$],
 )
 
 #let w_tuple(wit1: $w_1$, wit2: $w_2$, typ1: $t_1$, typ2: $t_2$) = rule(
   name: $times_w$,
-  [$|-wit1 : typ1$],
-  [$|- wit2 : typ2$],
-  [$|- (wit1, wit2) : (typ1 times typ2)$],
+  [$|-wit1 >> typ1$],
+  [$|- wit2 >> typ2$],
+  [$|- (wit1, wit2) >> (typ1 times typ2)$],
 )
 
 #let w_sub(wit: $w$, typ1: $t$, typ2 : $t'$) = rule(
   name : $"Sous-type"_w$,
-  [$|- wit : typ2$],
+  [$|- wit >> typ2$],
   [$typ2 lt.eq.slant typ1$],
-  [$|- wit : typ1$],
+  [$|- wit >> typ1$],
 )
 
 
@@ -47,10 +47,10 @@ RULES FOR $t ~> w$ :
   [$Delta |-""_s typ ~> wit$],
 )
 
-#let t_arrow(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
+#let t_arrow(Delta: $Delta$, typ : $A$, wit: $w$) = rule(
   name: [$->_t$],
-  [$wit lt.eq.slant typ1 -> typ2$],
-  [$Delta |-""_s typ1 -> typ2 ~> wit$],
+  [$wit lt.eq.slant typ$],
+  [$Delta |-""_s typ ~> wit$],
 )
 
 #let t_tuple(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit1: $w_1$, wit2: $w_2$) = rule(
@@ -108,8 +108,7 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
 
         t_arrow(
           Delta: $Delta$,
-          typ1: Int,
-          typ2: Bool,
+          typ: $Int -> Bool$,
           wit: $w_2 = Int -> BigZero$,
         ),
       
@@ -132,11 +131,11 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
     rule(
       name : $->_w$,
       [$Int -> BigZero lt.eq.slant (Int -> Bool) $],
-    [$|- Int -> BigZero : (Int -> Bool)$]),
+    [$|- Int -> BigZero >> (Int -> Bool)$]),
     [$(Int -> Bool) lt.eq.slant (Int -> Bool) or "Nil"$],
-    [$|- Int -> BigZero : (Int -> Bool) or "Nil"$],
+    [$|- Int -> BigZero >> (Int -> Bool) or "Nil"$],
   ),
-  [$|- (42, Int -> BigZero) : (Int, (Int -> Bool) or "Nil")$],
+  [$|- (42, Int -> BigZero) >> (Int, (Int -> Bool) or "Nil")$],
 ))
 
 #align(center, exemple_w1)
@@ -151,9 +150,9 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
     w_base(wit: True, typ: Bool),
     w_arrow(wit: $Int -> Int$, typ : $BigZero -> BigOne$),
 
-    [$(True, Int -> Int) : (Bool, BigZero -> BigOne)$],
+    [$(True, Int -> Int) >> (Bool, BigZero -> BigOne)$],
   ),
-  [$(3, (True, Int -> Int)) : (Int, (Bool, BigZero -> BigOne))$],
+  [$(3, (True, Int -> Int)) >> (Int, (Bool, BigZero -> BigOne))$],
 ))
 
 Exemple w2 :

@@ -17,7 +17,7 @@ Correction d'un gros bug de Enum, abandon (pour l'instant) de Arrow, création d
 Ajout du code et des Tests de Tags. Ajout du code de Arrow ? Le vérifier avec Kim. Ajout de tests pour Arrow. Questionnement sur les types récursifs : comment les handles ? -> Repenser tags et tuples pour faire de la mémoïsation avec dnf. Pétage de crâne
 
 10/04/26
-Matinée en distanciel, j'ai cloné le github sur mon pc (il ne compile pas encore). Ajout de la mémoïsation pour tag et tuple : Ca marche ! (environ). Réunion avec Kim pour revoir tout ça et réagencer le code. J'ai enlevé Empty de mon type singleton, ajout du type option de partout. Début du réagencement de la mémoïsation sur les tags : ils sont bugés. Relire mes notes.
+Matinée en distanciel, j'ai cloné le GitHub sur mon pc (il ne compile pas encore). Ajout de la mémoïsation pour tag et tuple : Ca marche ! (environ). Réunion avec Kim pour revoir tout ça et réagencer le code. J'ai enlevé Empty de mon type singleton, ajout du type option de partout. Début du réagencement de la mémoïsation sur les tags : ils sont bugés. Relire mes notes.
 
 13/04/26
 Finition de la mémoïsation : passage à la Hashtbl réussi. Transformation de test_witness.ml en une library de dune pour faire des tests propres. J'ai essayé de réutiliser les tests de tests.ml, mais ça s'est révélé infructueux. Début des records : Kim m'a expliqué leur manière de fonctionner, on commence par une manière simple de calculer le witness.
@@ -51,12 +51,15 @@ w:t a été défini, t ~> w aussi, galère sur la preuve de la terminaison.
 Journée en télétravail. Preuve de la terminaison de t ~> w et de si /O |-_m t ~> alors w:t" fini !
 
 22/04/26 :
-Mini-réu avec Kim : patch de la règle arrow de w:t, début de propreté du rapport. J'ai entièrement réécrit les tests mainteant que je sais utilisé Ast et repl.
+Mini-réu avec Kim : patch de la règle arrow de w:t, début de propreté du rapport. J'ai entièrement réécrit les tests maintenant que je sais utilisé Ast et repl.
 
 23/04/26 :
-Séminaire de Gabrielle sur la détection de biais de fixation et comment l'éviter, notamment dans le médical. Ecriture du rapport, réajustement des règles d'inférence,
+Séminaire de Gabrielle sur la détection de biais de fixation et comment l'éviter, notamment dans le médical. Écriture du rapport, réajustement des règles d'inférence,
 on l'a rendu tout joli.
 
+24/04/26 :
+Écriture du rapport et réunion avec Kim : réorchestration de la preuve avec un ordre lexicographique, discussion sur comment intégrer les variables de types, qu'est ce que je vais faire la semaine pro.
 
+27/04/26 :
+Anniversaire de Théo ! Réagencement (encore une fois) du rapport, avec l'ordre proposé par Kim. Ajout de la partie "ordre lexico", réécriture de la preuve de sûreté...
 
-Pour chaque variable alpha, on la considère comme any, et not alpha = any\alpha ? c'est nul
