@@ -75,11 +75,11 @@ Dans un premier temps, nous allons ignorer les variables de types pour la géné
 
 
 #definition()[
-  D'après la Définition C.13 de "Polymorphic Functions with set-theoretic types" @castagna:hal-00880744, un socle *$Im$*$ subset \u{1D4AF}$ est un ensemble de types avec les propriétés suivantes :
-  - $Im$ est fini, 
-  - $Im$ est clos sous les connecteurs booléens ($or, and "et" not$).
-  - Si $t_1 times t_2 in Im$ ou $t_1 -> t_2 in Im$ alors $t_1 in Im$ et $t_2 in Im$. 
-  De plus, si on a $S : {s | subset.eq.sq t}$ l'ensemble des sous-arbres de $t$, alors $exists Im$ tel que $S subset.eq Im$.]
+  D'après la Définition C.13 de "Polymorphic Functions with set-theoretic types" @castagna:hal-00880744, un socle *$beth$* $subset \u{1D4AF}$ est un ensemble de types avec les propriétés suivantes :
+  - *$beth$* est fini, 
+  - *$beth$* est clos sous les connecteurs booléens ($or, and "et" not$).
+  - Si $t_1 times t_2 in $*$beth$* ou $t_1 -> t_2 in $*$beth$* alors $t_1 in $*$beth$* et $t_2 in $*$beth$*. 
+  De plus, si on a $S : {s | subset.eq.sq t}$ l'ensemble des sous-arbres de $t$, alors $exists $*$beth$* tel que $S subset.eq $*$beth$*.]
 
 Cette définition nous sera utile plus tard, lors de la création de l'algorithme de génération du témoin.
 
@@ -90,7 +90,7 @@ $
   t ::= or.big_i b_i or or.big_i ( and.big_j p_1^(i j) -> p_2^(i j) and and.big_j not(n_1^(i j) -> n_2^(i j))) or or.big_i ( and.big_j (p_1^(i j) times p_2^(i j)) and and.big_j not(n_1^(i j) times n_2^(i j)))
 $
 
-Avec des atomes positifs, nommés p, et des atomes négatifs, nommés n. On notera que, dû à la récursivité de notre définition, on peut avoir des opérateurs d'union sous les opérateurs d'intersection (si on développe les types flèches et tuples). On appellera quand même cette forme une DNF par la suite, par mesure de simplicité. EXPLIQUER PK LES CAS DE BASES N'ONT PAS D'ATOMES NEG
+Avec des atomes positifs, nommés p, et des atomes négatifs, nommés n. On notera que, dû à la récursivité de notre définition, on peut avoir des opérateurs d'union sous les opérateurs d'intersection (si on développe les types flèches et tuples). On appellera quand même cette forme une DNF par la suite, par mesure de simplicité. Les atomes de bases ne sont représentés que comme des unions car il sont très simplement simplifiables.
 
 On peut simplifier cette définition en transformant la partie sur les tuples en une union d'union :
 #lemma(variant: "Lemme")[
@@ -132,7 +132,7 @@ Un témoin est un habitant de notre type, c'est à dire une valeur constante app
 16 est un témoin de $Int or Bool$.
 
 Pour trouver un habitant d'une fonction $f$ de type $t_1 -> t_2$, il faut un langage qui puisse prendre un habitant de $t_1$ et renvoyer le résultat de $f("Witness"(t_1)) = "Witness"(t_2)$.  On pourrait utiliser des $lambda$ termes mais cela serait complexes pour les types récursifs. Enfin, savoir que $42 -> 43$ est un habitant de $Any -> Int$ ne nous aide pas vraiment. Le procédé est donc complexe est contre-productif, nous avons donc choisis de considérer les types flèches (de la forme $or.big_i ( and.big_j p_1^(i j) -> p_2^(i j) and and.big_j not(n_1^(i j) -> n_2^(i j)))$) comme des cas de base. On notera
-$ A ::= and.big_i p_1^i -> p_2^i and and.big_j not(n_1^j -> n_2^j) $
+$ A ::= and.big_i (p_1^i -> p_2^i) and and.big_j not(n_1^j -> n_2^j) $
 Cela va permettre de réécrire une nouvelle fois notre définition de type :
 $ t ::= or.big_i b_i or or.big_i A_i or or.big_i (t_1^i times t_2^i) $
 
@@ -146,7 +146,11 @@ $w = (42, (True, False))$ est un témoin correct dans notre syntaxe.
 
 == Définition de $w >> t$
 
-On peut donc créer l'algorithme qui pour tout témoin w renvoie le type t contenant uniquement doublement (qu'on notera $w >> t$ et appellera type_of(w)) avec les règles suivantes : 
+On peut donc créer l'algorithme type_of(w) qui pour tout témoin w renvoie le type t contenant uniquement w :
+
+#rule_to_ty
+
+On peut étendre cet algorithme afin que pour tout témoin w, il renvoie le type t tel que $w lt.eq.slant t$. On l'appellera $w >> t$ et aura les règles suivantes : 
 
 #rule_w
 
@@ -184,25 +188,25 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 
 #proof(title: "Preuve ")[
 
-  On a, par définition, que $Delta subset.eq Im$, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-""_s, 0 "si" |-""_m.$\
-  Alors on peut construire le nombre $(|Im \\ Delta|,u,s)$ Montrons que, quelque que soit la règle suivie, ce nombre décroît sur l'ordre lexicographique, assurant donc la terminaison de l'algorithme :
+  On a, par définition, que $Delta subset.eq $*$beth$*, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-""_s, 0 "si" |-""_m.$\
+  Alors on peut construire le nombre $(|$*$beth$*$ \\ Delta|,u,s)$ Montrons que, quelque que soit la règle suivie, ce nombre décroît sur l'ordre lexicographique, assurant donc la terminaison de l'algorithme :
 
   Pour $"Base"_t$ : il suffit de prendre un atome de $or.big_i b_i$, ce qui se fait en temps fini.
 
   Pour $->_t$ : il suffit de prendre un atome de $A$, ce qui se fait aussi en temps fini.
 
-  Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-""_s$ à des règles $|-""_m$, on a donc bien  $(|Im \\ Delta|,u,0) lt_("lex") (|Im \\ Delta|,u,1)$.
+  Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-""_s$ à des règles $|-""_m$, on a donc bien  $(|$*$beth$*$ \\ Delta|,u,0) lt_("lex") (|$*$beth$*$ \\ Delta|,u,1)$.
 
-  Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|Im \\ Delta|,1,1) lt_("lex") (|Im \\ Delta| ,u,1)$
+  Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|$*$beth$*$ \\ Delta|,1,1) lt_("lex") (|$*$beth$*$ \\ Delta| ,u,1)$
 
-  Pour $or_2_t$ : $u$ passe à $u - 1$, donc on a bien $(|Im \\ Delta|,u - 1,1) lt_("lex") (|Im \\ Delta|,u,1)$
+  Pour $or_2_t$ : $u$ passe à $u - 1$, donc on a bien $(|$*$beth$*$ \\ Delta|,u - 1,1) lt_("lex") (|$*$beth$*$ \\ Delta|,u,1)$
 
-  Pour $t in.not Delta$ : $u$ est susceptible d'augmenter, mais $Delta$ augmente, donc $|Im \\ Delta|$ décroît de 1,on a donc bien $(|Im \\ Delta| -1,u',1) lt_("lex") (|Im \\ Delta|,u,0)$
+  Pour $t in.not Delta$ : $u$ est susceptible d'augmenter, mais $Delta$ augmente, donc $|$*$beth$*$ \\ Delta|$ décroît de 1,on a donc bien $(|$*$beth$*$ \\ Delta| -1,u',1) lt_("lex") (|$*$beth$*$ \\ Delta|,u,0)$
 
-Donc par induction fondée sur l'ordre lexicographique de $(|Im \\ Delta|,u,s)$, pour tout type $t lt.eq.not BigZero, t~> w$ termine. 
+Donc par induction fondée sur l'ordre lexicographique de $(|$*$beth$*$ \\ Delta|,u,s)$, pour tout type $t lt.eq.not BigZero, t~> w$ termine. 
 ]
 
-== Preuve de sûreté A RETRAVAILLER CF TABLEAU
+== Preuve de sûreté
 
 #theorem(variant: "Théorème")[
   Pour tout type $t$ non-vide, $"si" emptyset |-""_s t ~> w "alors" w >> t$.
@@ -213,25 +217,27 @@ Donc par induction fondée sur l'ordre lexicographique de $(|Im \\ Delta|,u,s)$,
   On veut prouver $P(t) ::= "Si" emptyset |-""_s t ~> w "alors" w >> t$ :\
   On prouve par induction sur les règles d'inférences de $t ~> w$ :
 
-  Si $|-""_s b ~> w$, alors par $"Base"_t$, $w = c lt.eq.slant b$, donc $w = c in [|b|]$, donc $w >> b$.
+  Pour $"Base"_t$ : Supposons $|-""_s b ~> w$, alors par $"Base"_t$, $w = c lt.eq.slant b$, donc $w = c in [|b|]$, donc $w >> b$.
 
-  Si $|-""_s A ~> w$, alors par $->_t$, $w = w_1 -> w_2 lt.eq.slant A$ , donc par $->_w$, $w >> A$.
+  Pour $->_t$ : Supposons $|-""_s A ~> w$, alors par $->_t$, $w = w_1 -> w_2 lt.eq.slant A$ , donc par $->_w$, $w >> A$.
 
   Supposons maintenant $P(t_1)$ et $P(t_2)$.
 
-  Montrons que $P(t_1 times t_2)$ :\ Si $(t_1 times t_2) ~> (w_1 , w_2)$, alors par $times_t$, $t_1 ~> w_1$ et $t_2 ~> w_2$, donc par hypothèse, $w_1 >> t_1$ et $w_2 >> t_2$, donc par $times_w$, $(w_1 , w_2) >>(t_1 times t_2)$.
+  Pour $times_t$ : Supposons $(t_1 times t_2) ~> (w_1 , w_2)$, alors par $times_t$, $t_1 ~> w_1$ et $t_2 ~> w_2$, donc par $P(t_1)$ et $P(t_2)$, on a $w_1 >> t_1$ et $w_2 >> t_2$, donc par $times_w$, $(w_1 , w_2) >>(t_1 times t_2)$.
 
-  Montrons que $P(t_1 or t_2)$ :\ Si $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc $w >> t_1$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >>  t_1 or t_2$.
+  Pour $or_1_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc par $P(t_1)$ on a $w >> t_1$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >>  t_1 or t_2$.
+
+  Pour $or_2_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_2_t$, $t_2 ~> w$, donc par $P(t_2)$ on a $w >> t_2$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >>  t_1 or t_2$.
 
   Donc pour tout type $t$ non-vide, $"si" emptyset |-""_m t ~> w "alors" w >> t$.
 ]
 
 = Extensions
 
-Des extensions ont été rajoutés aux types ensemblistes déjà présents pour couvrir certaines types précis : les n-uplets, les tags et les records. Tout ceux-ci ne sont que des versions spécifiques des tuples, ils ne seront donc pas traités sur le plan théorique. On peut donc étendre notre définition de témoin :
+Des extensions ont été rajoutés aux types ensemblistes déjà présents pour couvrir certaines types précis : les n-uplets, les tags et les records. Tout ceux-ci ne sont que des versions spécifiques des tuples, ils ne seront donc pas traités sur le plan théorique. De plus, nos cas de bases peuvent être de 2 types : Int et Enum. On peut donc étendre notre définition de témoin :
 $ w ::= i in [|Int|] | e in [|Enum|]| A | (w, w , ... , w) | "tag"(w) | {l_i : w ... l_n : w} $
 
-== Tag
+== Tags
 Les atomes de tags sont des tuples avec un type Tag (équivalent à un type string) en premier membre et un type $t$ en deuxième. Ils servent à marquer certains types pour ne pas être confondus (ex : $"foo"(Int)$).
 
 == Records
@@ -270,7 +276,7 @@ Enum contient tout les types énumérés, incluant notamment les booléens (et l
 + $Enum \\ (a or "ba" or "toto")$ donnera $"abc"$.
 
 === Arrow
-Comme dit plus haut, on considère les atomes de la forme $and.big (t_1 -> t_2) and and.big not(t_1 -> t_2)$ comme des cas de base.
+Comme dit plus haut, on considère les atomes de la forme $and.big_i (t_1^i -> t_2^i) and and.big_j not(t_1 -> t_2)$ comme des cas de base.
 On va donc prendre tout les atomes positifs de t, et y rajouter un par un les atomes négatifs de t. Si au moment d'un ajout, l'intersection des atomes positifs et négatifs donne un sous-type de t, c'est notre témoin.
 
 
@@ -310,6 +316,8 @@ ${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$
 ==== Exemple
 ${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
 
+= Un bug !
+Si on crée $alpha$ une variable de type, alors TY.get_descr($alpha$) = $BigOne$, donc Witness($alpha$) = $42$. Mais d'après le sous-typage, $42 lt.eq.not alpha$. :(
 
 
 #bibliography("bibliography.bib", full: true)

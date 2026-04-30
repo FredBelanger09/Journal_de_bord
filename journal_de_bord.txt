@@ -63,3 +63,10 @@ on l'a rendu tout joli.
 27/04/26 :
 Anniversaire de Théo ! Réagencement (encore une fois) du rapport, avec l'ordre proposé par Kim. Ajout de la partie "ordre lexico", réécriture de la preuve de sûreté...
 
+28/04/26 :
+Un peu de travail sur le rapport, rachat de Thé
+
+29/04/26 :
+
+30/04/26 :
+Travail sur le rapport, découverte d'un bug sur les var de type assez embêtant : comment le résoudre ? (le pb : si on crée alpha une var de type, alors alpha.descr = any, donc witness(alpha) = 42, mais d'après le sous-typage, 42 !=< alpha)

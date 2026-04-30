@@ -1,7 +1,38 @@
 #import "@preview/curryst:0.6.0": prooftree, rule, rule-set
 #import "@preview/quick-maths:0.2.1": shorthands
 #import "macros.typ": *
-RULES FOR w:t :
+
+
+#let to_ty_base(wit: $c$, typ: $b$) = rule(
+  name: $"Base"_"type_of"$,
+  [$wit = typ$],
+  [$|- "type_of" (wit)= typ$],
+)
+
+#let to_ty_arrow(wit: $w$, typ : $A$) = rule(
+  name: $->_"type_of"$,
+  [$wit = typ$],
+  [$|- "type_of"(wit) = typ$],
+)
+
+#let to_ty_tuple(wit1: $w_1$, wit2: $w_2$, typ1: $t_1$, typ2: $t_2$) = rule(
+  name: $times_"type_of"$,
+  [$|- "type_of" (wit1) = typ1$],
+  [$|- "type_of" (wit2) = typ2$],
+  [$|- "type_of" (wit1, wit2) = (typ1 times typ2)$],
+)
+
+
+#let rule_to_ty = align(center, rule-set(
+  prooftree(to_ty_base()),
+  prooftree(to_ty_arrow()),
+  prooftree(to_ty_tuple()),
+))
+
+#rule_to_ty
+
+
+RULES FOR w>>t :
 
 #let w_base(wit: $c$, typ: $b$) = rule(
   name: $"Base"_w$,
