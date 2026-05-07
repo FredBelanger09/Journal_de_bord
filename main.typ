@@ -3,14 +3,17 @@
 #import "@preview/tdtr:0.5.5": tidy-tree-graph
 #import "@preview/thmbox:0.3.0": *
 
-#set text(lang: "fr")
+
 
 #import "macros.typ": *
 #import "rules.typ": *
 
 
-#show :  shorthands.with(($|-$, $tack.r$), ($~=$, $tilde.eq$))
-#show :  arkheion.with(
+#show: shorthands.with(($|-$, $tack.r$), ($~=$, $tilde.eq$))
+#let beth = strong([$beth$])
+
+
+#show: arkheion.with(
   title: "Rapport de stage",
   authors: (
     (name: "Fred Belanger", email: "felix.belanger@universite-paris-saclay.fr", affiliation: ""),
@@ -22,7 +25,8 @@
 )
 #set cite(style: "chicago-author-date")
 #show link: underline
-#show :  thmbox-init()
+#show: thmbox-init()
+
 
 #outline(depth: 3)
 
@@ -75,11 +79,11 @@ Dans un premier temps, nous allons ignorer les variables de types pour la géné
 
 
 #definition()[
-  D'après la Définition C.13 de "Polymorphic Functions with set-theoretic types" @castagna:hal-00880744, un socle *$beth$* $subset \u{1D4AF}$ est un ensemble de types avec les propriétés suivantes :
-  - *$beth$* est fini, 
-  - *$beth$* est clos sous les connecteurs booléens ($or, and "et" not$).
-  - Si $t_1 times t_2 in $*$beth$* ou $t_1 -> t_2 in $*$beth$* alors $t_1 in $*$beth$* et $t_2 in $*$beth$*. 
-  De plus, si on a $S : {s | subset.eq.sq t}$ l'ensemble des sous-arbres de $t$, alors $exists $*$beth$* tel que $S subset.eq $*$beth$*.]
+  D'après la Définition C.13 de "Polymorphic Functions with set-theoretic types" @castagna:hal-00880744, un socle $beth$ $subset \u{1D4AF}$ est un ensemble de types avec les propriétés suivantes :
+  - $beth$ est fini,
+  - $beth$ est clos sous les connecteurs booléens ($or, and "et" not$).
+  - Si $t_1 times t_2 in beth$ ou $t_1 -> t_2 in beth$ alors $t_1 in beth$ et $t_2 in beth$.
+  De plus, si on a $S : {s | subset.eq.sq t}$ l'ensemble des sous-arbres de $t$, alors $exists beth$ tel que $S subset.eq beth$.]
 
 Cette définition nous sera utile plus tard, lors de la création de l'algorithme de génération du témoin.
 
@@ -92,7 +96,7 @@ $
 
 Avec des atomes positifs, nommés p, et des atomes négatifs, nommés n. On notera que, dû à la récursivité de notre définition, on peut avoir des opérateurs d'union sous les opérateurs d'intersection (si on développe les types flèches et tuples). On appellera quand même cette forme une DNF par la suite, par mesure de simplicité. Les atomes de bases ne sont représentés que comme des unions car il sont très simplement simplifiables.
 
-On peut simplifier cette définition en transformant la partie sur les tuples en une union d'union :
+On peut simplifier cette définition en transformant la partie sur les tuples en une union d'unions :
 #lemma(variant: "Lemme")[
   $forall t , t lt.eq.slant BigOne times BigOne => exists (t_1^i, t_2^i), t tilde.eq or.big_i (t_1^i, t_2^i)$
 ]<lemma-one>
@@ -150,7 +154,7 @@ On peut donc créer l'algorithme type_of(w) qui pour tout témoin w renvoie le t
 
 #rule_to_ty
 
-On peut étendre cet algorithme afin que pour tout témoin w, il renvoie le type t tel que $w lt.eq.slant t$. On l'appellera $w >> t$ et aura les règles suivantes : 
+On peut étendre cet algorithme afin que pour tout témoin w, il renvoie le type t tel que $w lt.eq.slant t$. On l'appellera $w >> t$ et aura les règles suivantes :
 
 #rule_w
 
@@ -182,38 +186,37 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 
 == Preuve de terminaison de l'algorithme
 
-#theorem(variant: "Théorème")[
+#theorem()[
   Pour tout type $t$ non-vide, $t ~> w$ termine.
-]
+]<terminaison>
 
-#proof(title: "Preuve ")[
-
-  On a, par définition, que $Delta subset.eq $*$beth$*, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-""_s, 0 "si" |-""_m.$\
-  Alors on peut construire le nombre $(|$*$beth$*$ \\ Delta|,u,s)$ Montrons que, quelque que soit la règle suivie, ce nombre décroît sur l'ordre lexicographique, assurant donc la terminaison de l'algorithme :
+#proof()[
+  On a, par définition, que $Delta subset.eq beth$, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-""_s, 0 "si" |-""_m.$\
+  Alors on peut construire le nombre $(beth \\ Delta|,u,s)$ Montrons que, quelque que soit la règle suivie, ce nombre décroît sur l'ordre lexicographique, assurant donc la terminaison de l'algorithme :
 
   Pour $"Base"_t$ : il suffit de prendre un atome de $or.big_i b_i$, ce qui se fait en temps fini.
 
   Pour $->_t$ : il suffit de prendre un atome de $A$, ce qui se fait aussi en temps fini.
 
-  Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-""_s$ à des règles $|-""_m$, on a donc bien  $(|$*$beth$*$ \\ Delta|,u,0) lt_("lex") (|$*$beth$*$ \\ Delta|,u,1)$.
+  Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-""_s$ à des règles $|-""_m$, on a donc bien  $(|beth \\ Delta|,u,0) lt_("lex") (|beth \\ Delta|,u,1)$.
 
-  Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|$*$beth$*$ \\ Delta|,1,1) lt_("lex") (|$*$beth$*$ \\ Delta| ,u,1)$
+  Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|beth \\ Delta|,1,1) lt_("lex") (|beth \\ Delta| ,u,1)$
 
-  Pour $or_2_t$ : $u$ passe à $u - 1$, donc on a bien $(|$*$beth$*$ \\ Delta|,u - 1,1) lt_("lex") (|$*$beth$*$ \\ Delta|,u,1)$
+  Pour $or_2_t$ : $u$ passe à $u - 1$, donc on a bien $(|beth \\ Delta|,u - 1,1) lt_("lex") (|beth \\ Delta|,u,1)$
 
-  Pour $t in.not Delta$ : $u$ est susceptible d'augmenter, mais $Delta$ augmente, donc $|$*$beth$*$ \\ Delta|$ décroît de 1,on a donc bien $(|$*$beth$*$ \\ Delta| -1,u',1) lt_("lex") (|$*$beth$*$ \\ Delta|,u,0)$
+  Pour $t in.not Delta$ : $u$ est susceptible d'augmenter, mais $Delta$ augmente, donc $|beth \\ Delta|$ décroît de 1,on a donc bien $(|beth \\ Delta| -1,u',1) lt_("lex") (|beth \\ Delta|,u,0)$
 
-Donc par induction fondée sur l'ordre lexicographique de $(|$*$beth$*$ \\ Delta|,u,s)$, pour tout type $t lt.eq.not BigZero, t~> w$ termine. 
+  Donc par induction fondée sur l'ordre lexicographique de $(|beth \\ Delta|,u,s)$, pour tout type $t lt.eq.not BigZero, t~> w$ termine.
 ]
 
 == Preuve de sûreté
 
-#theorem(variant: "Théorème")[
+#theorem()[
   Pour tout type $t$ non-vide, $"si" emptyset |-""_s t ~> w "alors" w >> t$.
   En d'autres termes, $forall t, "type_of"("Witness"(t)) lt.eq.slant t$.
-]
+]<surete>
 
-#proof(title: "Preuve ")[
+#proof()[
   On veut prouver $P(t) ::= "Si" emptyset |-""_s t ~> w "alors" w >> t$ :\
   On prouve par induction sur les règles d'inférences de $t ~> w$ :
 
@@ -225,9 +228,9 @@ Donc par induction fondée sur l'ordre lexicographique de $(|$*$beth$*$ \\ Delta
 
   Pour $times_t$ : Supposons $(t_1 times t_2) ~> (w_1 , w_2)$, alors par $times_t$, $t_1 ~> w_1$ et $t_2 ~> w_2$, donc par $P(t_1)$ et $P(t_2)$, on a $w_1 >> t_1$ et $w_2 >> t_2$, donc par $times_w$, $(w_1 , w_2) >>(t_1 times t_2)$.
 
-  Pour $or_1_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc par $P(t_1)$ on a $w >> t_1$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >>  t_1 or t_2$.
+  Pour $or_1_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_1_t$, $t_1 ~> w$, donc par $P(t_1)$ on a $w >> t_1$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >> t_1 or t_2$.
 
-  Pour $or_2_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_2_t$, $t_2 ~> w$, donc par $P(t_2)$ on a $w >> t_2$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >>  t_1 or t_2$.
+  Pour $or_2_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_2_t$, $t_2 ~> w$, donc par $P(t_2)$ on a $w >> t_2$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >> t_1 or t_2$.
 
   Donc pour tout type $t$ non-vide, $"si" emptyset |-""_m t ~> w "alors" w >> t$.
 ]
@@ -316,8 +319,97 @@ ${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$
 ==== Exemple
 ${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
 
-= Un bug !
-Si on crée $alpha$ une variable de type, alors TY.get_descr($alpha$) = $BigOne$, donc Witness($alpha$) = $42$. Mais d'après le sous-typage, $42 lt.eq.not alpha$. :(
+= Les variables de type
+
+== Définition
+On veut maintenant pouvoir détecter les variables de type non-vides, on commence donc par étendre notre définition de t :
+
+$ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
+
+
+#definition()[
+  Un type $t := alpha$ est non-vide si et seulement si il existe une substitution $sigma$ tel que $t sigma lt.eq.not BigZero$.
+]
+
+On veut donc renvoyer une substitution $sigma$ et un témoin de $t sigma$, avec comme conditions que Vars($t sigma$) = $emptyset$, $t sigma lt.eq.not BigZero$ et Witness($t sigma$) $>> t sigma$.
+
+On étend donc notre témoin :
+$ w ::= c | A | (w,w) |(sigma,w) $
+Avec $sigma$ l'ensemble des substitutions.
+
+== Présentation de l'algorithme 
+On a donc maintenant besoin d'implémenter l'algorithme, nommé polyw$(t)$ qui pour tout type t renvoie la substitution $sigma$ tel que $t sigma$ n'ai plus de variables de types (EN TOP LEVEL ????) et $t sigma$ ne soit pas vide.\
+On propose donc ces règles d'inférences :
+
+#rule_polyw
+
+==== Exemple : 
+Pour $alpha and beta$ on a : 
+
+#exemple_pw1
+
+
+
+#theorem()[
+Pour tout type $t$, polyw$(t)$ termine. 
+]<polyw_terminaison>
+
+#proof()[
+  Montrons que, quelque que soit la règle suivie,soit $|"Vars"(t)|$ décroît, soit on est sur un cas de base, ce qui assure la terminaison de l'algorithme :
+
+  Pour $"Base"_"polyw"$ : Comme il suffit de renvoyer l'ensemble vide, cela se fait en temps finit.
+
+  Pour $"Tally"_"polyw"$ : S'assurer que $forall sigma, t sigma lt.eq.not BigZero$ se fait en temps fini par l'algorithme de tallying (cf METTRE LA REF), de même, récupérer les variable de type de t se fait en temps fini, donc produire $sigma = union.big_(alpha in "Vars"(t)) {alpha |-> BigZero}$ se fait en temps fini.
+
+  Pour $"Gen"_"polyw"$ : La création de $sigma'$ (QUI EST A RETRAVAILLER OFC) est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|"Vars"(t sigma')| lt |"Vars"(t)|$.
+
+  Donc par induction fondé sur l'ordre numérique de $|"Vars"(t)|$, pour tout type $t$, $"polyw"(t)$ termine.
+
+]
+
+== Extension des règles de Witness
+
+On peut donc maintenant prendre en compte le type $alpha$ dans notre algorithme Witness$(t)$ en ajoutant la règle suivante :
+
+#prooftree(var_t())
+
+==== Exemple :
+On a $t = alpha or beta$. Cela nous donne l'arbre :
+
+#exemple_pw2
+
+#lemma()[
+  L'algorithme Witness(t) termine toujours avec l'ajout de cette règle.
+]
+
+#proof()[
+  Comme vu dans le @terminaison, on utilise une preuve par induction sur l'ordre lexicographique de $(|beth\\Delta|, u, s)$. On ajoute ici la preuve de sa décroissance pour la règle $"var"_t$ :
+
+  Pour $"var"_t$ : On sait que $"polyw"(alpha) = sigma$ termine par le @polyw_terminaison, on passe de l'autre côté de s = 1 à s = 0 car l'on passe d'une règle $|-""_s$ à une règle $|-""_m$, on a donc bien $(|beth\\Delta|, u, 0) lt (|beth\\Delta|, u, 1)$.
+
+  Donc notre algorithme termine toujours bien.
+]
+
+== Extension des règles de Type_of et $>>$
+
+
+On pour donc ajouter les 2 règles suivantes à type_of et $>>$ :
+
+#rule_var
+
+
+
+
+#lemma()[
+  L'ajout des nouvelles règles pour les variables de type n'invalide pas le @surete.
+]
+#proof()[
+  On a toujours $P(t) ::= "Si" emptyset |-""_s t ~> w "alors" w >> t$.
+  On suppose $P(alpha sigma)$, montrons que $P(alpha)$ :
+
+  Supposons $ alpha ~> (sigma,w)$, alors par var$""_t$, on a $"polyw"(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$, et $"polyw"(t)$ assure que $"Vars"(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
+]
+
 
 
 #bibliography("bibliography.bib", full: true)

@@ -1,7 +1,7 @@
 #import "@preview/curryst:0.6.0": prooftree, rule, rule-set
 #import "@preview/quick-maths:0.2.1": shorthands
 #import "macros.typ": *
-
+#show: shorthands.with(($|-$, $tack.r$), ($~=$, $tilde.eq$))
 
 #let to_ty_base(wit: $c$, typ: $b$) = rule(
   name: $"Base"_"type_of"$,
@@ -9,7 +9,7 @@
   [$|- "type_of" (wit)= typ$],
 )
 
-#let to_ty_arrow(wit: $w$, typ : $A$) = rule(
+#let to_ty_arrow(wit: $w$, typ: $A$) = rule(
   name: $->_"type_of"$,
   [$wit = typ$],
   [$|- "type_of"(wit) = typ$],
@@ -37,10 +37,10 @@ RULES FOR w>>t :
 #let w_base(wit: $c$, typ: $b$) = rule(
   name: $"Base"_w$,
   [$wit in [|typ|]$],
-  [$wit >> typ$],
+  [$|- wit >> typ$],
 )
 
-#let w_arrow(wit: $w$, typ : $A$) = rule(
+#let w_arrow(wit: $w$, typ: $A$) = rule(
   name: $->_w$,
   [$wit lt.eq.slant typ$],
   [$|- wit >> typ$],
@@ -53,8 +53,8 @@ RULES FOR w>>t :
   [$|- (wit1, wit2) >> (typ1 times typ2)$],
 )
 
-#let w_sub(wit: $w$, typ1: $t$, typ2 : $t'$) = rule(
-  name : $"Sous-type"_w$,
+#let w_sub(wit: $w$, typ1: $t$, typ2: $t'$) = rule(
+  name: $"Sous-type"_w$,
   [$|- wit >> typ2$],
   [$typ2 lt.eq.slant typ1$],
   [$|- wit >> typ1$],
@@ -78,7 +78,7 @@ RULES FOR $t ~> w$ :
   [$Delta |-""_s typ ~> wit$],
 )
 
-#let t_arrow(Delta: $Delta$, typ : $A$, wit: $w$) = rule(
+#let t_arrow(Delta: $Delta$, typ: $A$, wit: $w$) = rule(
   name: [$->_t$],
   [$wit lt.eq.slant typ$],
   [$Delta |-""_s typ ~> wit$],
@@ -137,12 +137,12 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
     rule(
       name: $or_1_t$,
 
-        t_arrow(
-          Delta: $Delta$,
-          typ: $Int -> Bool$,
-          wit: $w_2 = Int -> BigZero$,
-        ),
-      
+      t_arrow(
+        Delta: $Delta$,
+        typ: $Int -> Bool$,
+        wit: $w_2 = Int -> BigZero$,
+      ),
+
       [$Delta = {(Int -> Bool) or "Nil"))} |-""_s (Int -> Bool) or "Nil") ~> w_2$],
     ),
     [$|-""_m t = (Int -> Bool) or "Nil") ~> w_2$],
@@ -160,9 +160,10 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
   rule(
     name: $"Sous-type"_w$,
     rule(
-      name : $->_w$,
-      [$Int -> BigZero lt.eq.slant (Int -> Bool) $],
-    [$|- Int -> BigZero >> (Int -> Bool)$]),
+      name: $->_w$,
+      [$Int -> BigZero lt.eq.slant (Int -> Bool)$],
+      [$|- Int -> BigZero >> (Int -> Bool)$],
+    ),
     [$(Int -> Bool) lt.eq.slant (Int -> Bool) or "Nil"$],
     [$|- Int -> BigZero >> (Int -> Bool) or "Nil"$],
   ),
@@ -179,13 +180,130 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
   rule(
     name: $times_w$,
     w_base(wit: True, typ: Bool),
-    w_arrow(wit: $Int -> Int$, typ : $BigZero -> BigOne$),
+    w_arrow(wit: $Int -> Int$, typ: $BigZero -> BigOne$),
 
-    [$(True, Int -> Int) >> (Bool, BigZero -> BigOne)$],
+    [$|- (True, Int -> Int) >> (Bool, BigZero -> BigOne)$],
   ),
-  [$(3, (True, Int -> Int)) >> (Int, (Bool, BigZero -> BigOne))$],
+  [$|- (3, (True, Int -> Int)) >> (Int, (Bool, BigZero -> BigOne))$],
 ))
 
 Exemple w2 :
 
 #exemple_w2
+
+
+Règles pour les var de type :
+
+
+#let polyw_base(typ: $t$) = rule(
+  name: $"Base"_"polyw"$,
+  $"Vars"(t)=emptyset$,
+  $|-"polyw"(t) = emptyset$,
+)
+
+#let polyw_tally(typ: $t$) = rule(
+  name: $"Tally"_"polyw"$,
+  $forall sigma, typ sigma lt.eq.not BigZero$,
+  $|- "polyw"(t) = union.big_(alpha in "Vars"(t)) {alpha |-> BigZero}$,
+)
+
+#let polyw_gen(typ: $t$, sigma1: $sigma'$, sigma2: $sigma$) = rule(
+  name: $"Gen"_"polyw"$,
+  $sigma1 = { alpha |-> not alpha sigma'' sigma_("fix")}$,
+  $|- "polyw"(t sigma1)= sigma2$,
+  $|- "polyw"(t) = sigma1 union sigma2$,
+)
+#let rule_polyw = align(center, rule-set(
+  prooftree(polyw_base()),
+  prooftree(polyw_tally()),
+  prooftree(polyw_gen()),
+))
+
+#let var_t(sigma: $sigma$, typ: $alpha$, wit: $w$, Delta: $Delta$) = rule(
+  name: $"var"_t$,
+  $|- "Polyw"(typ) = sigma$,
+  $Delta |-""_m typ sigma ~> wit$,
+  $Delta |-""_s typ ~> (sigma, wit)$,
+)
+
+#let var_w(sigma: $sigma$, typ: $alpha$, wit: $w$) = rule(
+  name: $"var"_w$,
+  $"Vars"(typ sigma) = emptyset$,
+  $typ sigma lt.eq.not BigZero$,
+  $|- wit >> typ sigma$,
+  $|- (sigma, wit) >> typ$,
+)
+
+#let var_type_of(sigma: $sigma$, typ: $alpha$, wit: $w$) = rule(
+  name: $"var"_"type_of"$,
+  $"Vars"(typ sigma) = emptyset$,
+  $typ sigma lt.eq.not BigZero$,
+  $|- "type_of"(sigma, wit) = typ sigma$,
+  $|- "type_of"(sigma, wit)= typ$,
+)
+
+
+#let rule_var = align(center, rule-set(
+  prooftree(var_type_of()),
+  prooftree(var_w()),
+))
+
+
+
+#rule_polyw
+
+#prooftree(var_t())
+#rule_var
+
+
+exemple polyw1 : $t = alpha and beta$
+
+#let exemple_pw1 = prooftree(rule(
+  name: $"Gen"_"polyw"$,
+  $sigma' = {alpha |-> BigOne}$,
+  rule(
+    name: $"Gen"_"polyw"$,
+    $sigma'' = {beta |-> BigOne}$,
+    rule(
+      name: $"Base"_"polyw"$,
+      $"Vars"(BigOne) = emptyset$,
+      $|- "polyw"((BigOne and beta) sigma'' = BigOne and BigOne = BigOne) = {}$,
+    ),
+    $|- "polyw"((alpha and beta) sigma' = BigOne and beta) = sigma'' union {}$,
+  ),
+  $|- "polyw"(alpha and beta) = sigma' union sigma'' union {} = {alpha |-> BigOne}$,
+))
+
+
+#let exemple_pw2 = prooftree(rule(
+  name: $or_t$,
+  rule(
+    name: $"var"_t$,
+    rule(
+      name: $"Gen"_"polyw"$,
+      $sigma' = {alpha |-> BigOne}$,
+      rule(
+        name: $"Base"_"polyw"$,
+        $"Vars"(t) = emptyset$,
+        $|- "polyw"(alpha sigma' = BigOne) = {}$,
+      ),
+      $|- "polyw"(alpha) = sigma' union {} = {alpha |-> BigOne}$,
+    ),
+    rule(
+      name: $t in.not Delta$,
+      rule(
+        name: $"Base"_t$,
+        $42 lt.eq.slant BigOne$,
+        ${BigOne} |-""_s BigOne ~> 42$,
+      ),
+      $|-""_m alpha {alpha |-> BigOne} = BigOne ~> 42$,
+    ),
+    $|-""_s alpha ~> ({alpha |-> BigOne},42)$,
+  ),
+  $|-""_s alpha or beta ~> ({alpha |-> BigOne}, 42)$,
+))
+
+#exemple_pw1
+
+#pagebreak()
+#exemple_pw2

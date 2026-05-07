@@ -70,3 +70,12 @@ Un peu de travail sur le rapport, rachat de Thé
 
 30/04/26 :
 Travail sur le rapport, découverte d'un bug sur les var de type assez embêtant : comment le résoudre ? (le pb : si on crée alpha une var de type, alors alpha.descr = any, donc witness(alpha) = 42, mais d'après le sous-typage, 42 !=< alpha)
+
+04/05/26 :
+Ajout bancal des var de type : si le résultat trouvé avant n'est pas sous-type de t, alors on consièdre que c'est une variable de type, et on la renvoie
+
+05/05/26 :
+Discussion avec Kim des var de type : 2H de discussion
+
+06/05/26 :
+Implémentation des var de type, changement du code de test, ajout des tests, début de la preuve théorique
