@@ -79,3 +79,6 @@ Discussion avec Kim des var de type : 2H de discussion
 
 06/05/26 :
 Implémentation des var de type, changement du code de test, ajout des tests, début de la preuve théorique
+
+07/05/26 :
+Création des règles d'inférences de polyw, preuve de terminaison de polyw et extension des preuves de terminaison et de sûreté de l'algo (pas finis)

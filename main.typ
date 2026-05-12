@@ -9,7 +9,12 @@
 #import "rules.typ": *
 
 
-#show: shorthands.with(($|-$, $tack.r$), ($~=$, $tilde.eq$))
+#show: shorthands.with(
+  ($|-m$, $attach(tack.r, br: m)$),
+  ($|-s$, $attach(tack.r, br: s)$),
+  ($|-$, $tack.r$),
+  ($~=$, $tilde.eq$),
+)
 #let beth = strong([$beth$])
 
 
@@ -191,14 +196,14 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 ]<terminaison>
 
 #proof()[
-  On a, par définition, que $Delta subset.eq beth$, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-""_s, 0 "si" |-""_m.$\
+  On a, par définition, que $Delta subset.eq beth$, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-s, 0 "si" |-m.$\
   Alors on peut construire le nombre $(beth \\ Delta|,u,s)$ Montrons que, quelque que soit la règle suivie, ce nombre décroît sur l'ordre lexicographique, assurant donc la terminaison de l'algorithme :
 
   Pour $"Base"_t$ : il suffit de prendre un atome de $or.big_i b_i$, ce qui se fait en temps fini.
 
   Pour $->_t$ : il suffit de prendre un atome de $A$, ce qui se fait aussi en temps fini.
 
-  Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-""_s$ à des règles $|-""_m$, on a donc bien  $(|beth \\ Delta|,u,0) lt_("lex") (|beth \\ Delta|,u,1)$.
+  Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-s$ à des règles $|-m$, on a donc bien  $(|beth \\ Delta|,u,0) lt_("lex") (|beth \\ Delta|,u,1)$.
 
   Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|beth \\ Delta|,1,1) lt_("lex") (|beth \\ Delta| ,u,1)$
 
@@ -212,17 +217,17 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 == Preuve de sûreté
 
 #theorem()[
-  Pour tout type $t$ non-vide, $"si" emptyset |-""_s t ~> w "alors" w >> t$.
+  Pour tout type $t$ non-vide, $"si" emptyset |-s t ~> w "alors" w >> t$.
   En d'autres termes, $forall t, "type_of"("Witness"(t)) lt.eq.slant t$.
 ]<surete>
 
 #proof()[
-  On veut prouver $P(t) ::= "Si" emptyset |-""_s t ~> w "alors" w >> t$ :\
+  On veut prouver $P(t) ::= "Si" emptyset |-s t ~> w "alors" w >> t$ :\
   On prouve par induction sur les règles d'inférences de $t ~> w$ :
 
-  Pour $"Base"_t$ : Supposons $|-""_s b ~> w$, alors par $"Base"_t$, $w = c lt.eq.slant b$, donc $w = c in [|b|]$, donc $w >> b$.
+  Pour $"Base"_t$ : Supposons $|-s b ~> w$, alors par $"Base"_t$, $w = c lt.eq.slant b$, donc $w = c in [|b|]$, donc $w >> b$.
 
-  Pour $->_t$ : Supposons $|-""_s A ~> w$, alors par $->_t$, $w = w_1 -> w_2 lt.eq.slant A$ , donc par $->_w$, $w >> A$.
+  Pour $->_t$ : Supposons $|-s A ~> w$, alors par $->_t$, $w = w_1 -> w_2 lt.eq.slant A$ , donc par $->_w$, $w >> A$.
 
   Supposons maintenant $P(t_1)$ et $P(t_2)$.
 
@@ -232,7 +237,7 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 
   Pour $or_2_t$ : Supposons $t_1 or t_2 ~> w$, alors par $or_2_t$, $t_2 ~> w$, donc par $P(t_2)$ on a $w >> t_2$, or $t_1 lt.eq.slant t_1 or t_2$ donc par $"Sous-type"_w$, $w >> t_1 or t_2$.
 
-  Donc pour tout type $t$ non-vide, $"si" emptyset |-""_m t ~> w "alors" w >> t$.
+  Donc pour tout type $t$ non-vide, $"si" emptyset |-m t ~> w "alors" w >> t$.
 ]
 
 = Extensions
@@ -319,6 +324,27 @@ ${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$
 ==== Exemple
 ${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
 
+#import "@preview/quick-maths:0.2.1": shorthands
+#import "@preview/tdtr:0.5.5": tidy-tree-graph
+#import "@preview/thmbox:0.3.0": *
+
+
+
+#import "macros.typ": *
+#import "rules.typ": *
+
+
+
+#show: shorthands.with(
+  ($|-m$, $attach(tack.r, br: m)$),
+  ($|-s$, $attach(tack.r, br: s)$),
+  ($|-$, $tack.r$),
+  ($~=$, $tilde.eq$),
+)
+#let beth = strong([$beth$])
+
+
+
 = Les variables de type
 
 == Définition
@@ -337,21 +363,21 @@ On étend donc notre témoin :
 $ w ::= c | A | (w,w) |(sigma,w) $
 Avec $sigma$ l'ensemble des substitutions.
 
-== Présentation de l'algorithme 
+== Présentation de l'algorithme
 On a donc maintenant besoin d'implémenter l'algorithme, nommé polyw$(t)$ qui pour tout type t renvoie la substitution $sigma$ tel que $t sigma$ n'ai plus de variables de types (EN TOP LEVEL ????) et $t sigma$ ne soit pas vide.\
 On propose donc ces règles d'inférences :
 
 #rule_polyw
 
-==== Exemple : 
-Pour $alpha and beta$ on a : 
+==== Exemple :
+Pour $alpha and beta$ on a :
 
 #exemple_pw1
 
 
 
 #theorem()[
-Pour tout type $t$, polyw$(t)$ termine. 
+  Pour tout type $t$, polyw$(t)$ termine.
 ]<polyw_terminaison>
 
 #proof()[
@@ -364,6 +390,25 @@ Pour tout type $t$, polyw$(t)$ termine.
   Pour $"Gen"_"polyw"$ : La création de $sigma'$ (QUI EST A RETRAVAILLER OFC) est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|"Vars"(t sigma')| lt |"Vars"(t)|$.
 
   Donc par induction fondé sur l'ordre numérique de $|"Vars"(t)|$, pour tout type $t$, $"polyw"(t)$ termine.
+
+]
+
+#theorem()[
+  Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$ et $t sigma lt.eq.not BigZero$
+]<vars_polyw>
+
+#proof()[
+  Montrer que si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$ est trivial. En effet, les 2 cas de bases, $"Base"_"polyw"$ et $"Tally"_"polyw"$ s'assurent que $"Vars"(t) = emptyset$ (donc pour toute substitution $sigma$, $"Vars"(t sigma) = emptyset$), ou que pour toute variable $alpha$ de $t$, celle-ci soit substituée par $BigZero$.
+
+  Montrons maintenant par induction que pour tout type $t lt.eq.not BigZero$, si $"poylw"(t) = sigma$, alors $t sigma lt.eq.not BigZero$ :
+
+  Pour $"Base"_"polyw"$ : Comme $t lt.eq.not BigZero$, si $sigma = {}$ alors $t = t sigma lt.eq.not BigZero$
+
+  Pour $"Tally"_"polyw"$ : Par définition, on a $forall sigma, t sigma lt.eq.not BigZero$.
+
+  Pour $"Gen"_"polyw"$ : IL FAUT RESOUDRE LA DEF DE SIGMA'
+
+
 
 ]
 
@@ -385,7 +430,7 @@ On a $t = alpha or beta$. Cela nous donne l'arbre :
 #proof()[
   Comme vu dans le @terminaison, on utilise une preuve par induction sur l'ordre lexicographique de $(|beth\\Delta|, u, s)$. On ajoute ici la preuve de sa décroissance pour la règle $"var"_t$ :
 
-  Pour $"var"_t$ : On sait que $"polyw"(alpha) = sigma$ termine par le @polyw_terminaison, on passe de l'autre côté de s = 1 à s = 0 car l'on passe d'une règle $|-""_s$ à une règle $|-""_m$, on a donc bien $(|beth\\Delta|, u, 0) lt (|beth\\Delta|, u, 1)$.
+  Pour $"var"_t$ : On sait que $"polyw"(alpha) = sigma$ termine par le @polyw_terminaison, on passe de l'autre côté de s = 1 à s = 0 car l'on passe d'une règle $|-s$ à une règle $|-m$, on a donc bien $(|beth\\Delta|, u, 0) lt (|beth\\Delta|, u, 1)$.
 
   Donc notre algorithme termine toujours bien.
 ]
@@ -398,18 +443,15 @@ On pour donc ajouter les 2 règles suivantes à type_of et $>>$ :
 #rule_var
 
 
-
-
 #lemma()[
-  L'ajout des nouvelles règles pour les variables de type n'invalide pas le @surete.
+  L'ajout des nouvelles règles pour les variables de type n'invalide pas le @surete. ($"Si" emptyset |-s t ~> w "alors" w >> t$)
 ]
 #proof()[
-  On a toujours $P(t) ::= "Si" emptyset |-""_s t ~> w "alors" w >> t$.
+  On a toujours $P(t) ::= "Si" emptyset |-s t ~> w "alors" w >> t$.
   On suppose $P(alpha sigma)$, montrons que $P(alpha)$ :
 
-  Supposons $ alpha ~> (sigma,w)$, alors par var$""_t$, on a $"polyw"(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$, et $"polyw"(t)$ assure que $"Vars"(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
+  Supposons $alpha ~> (sigma,w)$, alors par var$""_t$, on a $"polyw"(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$. Par le @vars_polyw, on sait que $"Vars"(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
 ]
-
 
 
 #bibliography("bibliography.bib", full: true)

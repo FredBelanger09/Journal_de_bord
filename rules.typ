@@ -1,7 +1,7 @@
 #import "@preview/curryst:0.6.0": prooftree, rule, rule-set
 #import "@preview/quick-maths:0.2.1": shorthands
 #import "macros.typ": *
-#show: shorthands.with(($|-$, $tack.r$), ($~=$, $tilde.eq$))
+#show: shorthands.with(($|-m$, $attach(tack.r, br: m)$),($|-s$, $attach(tack.r, br: s)$), ($|-$, $tack.r$), ($~=$, $tilde.eq$))
 
 #let to_ty_base(wit: $c$, typ: $b$) = rule(
   name: $"Base"_"type_of"$,
@@ -75,38 +75,38 @@ RULES FOR $t ~> w$ :
 #let t_base(Delta: $Delta$, typ: $b$, wit: $w$, con: $c$) = rule(
   name: [$"Base"_t$],
   [$wit=con lt.eq.slant typ$],
-  [$Delta |-""_s typ ~> wit$],
+  [$Delta |-s typ ~> wit$],
 )
 
 #let t_arrow(Delta: $Delta$, typ: $A$, wit: $w$) = rule(
   name: [$->_t$],
   [$wit lt.eq.slant typ$],
-  [$Delta |-""_s typ ~> wit$],
+  [$Delta |-s typ ~> wit$],
 )
 
 #let t_tuple(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit1: $w_1$, wit2: $w_2$) = rule(
   name: [$times_t$],
-  [$Delta |-""_m typ1 ~> wit1$],
-  [$Delta |-""_m typ2 ~> wit2$],
-  [$Delta |-""_s typ1 times typ2 ~> (wit1, wit2)$],
+  [$Delta attach(tack.r,br:m) typ1 ~> wit1$],
+  [$Delta |-m typ2 ~> wit2$],
+  [$Delta |-s typ1 times typ2 ~> (wit1, wit2)$],
 )
 
 #let t_or_1(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
   name: [$or_1_t$],
-  [$Delta |-""_s typ1 ~> wit$],
-  [$Delta |-""_s typ1 or typ2 ~> wit$],
+  [$Delta |-s typ1 ~> wit$],
+  [$Delta |-s typ1 or typ2 ~> wit$],
 )
 
 #let t_or_2(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit: $w$) = rule(
   name: [$or_2_t$],
-  [$Delta |-""_s typ2 ~> wit$],
-  [$Delta |-""_s typ1 or typ2 ~> wit$],
+  [$Delta |-s typ2 ~> wit$],
+  [$Delta |-s typ1 or typ2 ~> wit$],
 )
 
 #let t_mem(Delta: $Delta$, typ: $t$, wit: $w$) = rule(
   name: [$typ in.not Delta$],
-  [$Delta union {typ}|-""_s typ ~> wit$],
-  [$Delta |-""_m typ ~> wit$],
+  [$Delta union {typ}|-s typ ~> wit$],
+  [$Delta |-m typ ~> wit$],
 )
 
 #let rule_t = align(center, rule-set(
@@ -130,7 +130,7 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
   rule(
     name: $Int in.not Delta$,
     t_base(Delta: $Delta = {Int}$, typ: Int, wit: $w_1$, con: $42$),
-    [$|-""_m Int ~> w_1$],
+    [$|-m Int ~> w_1$],
   ),
   rule(
     name: $t in.not Delta$,
@@ -143,11 +143,11 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
         wit: $w_2 = Int -> BigZero$,
       ),
 
-      [$Delta = {(Int -> Bool) or "Nil"))} |-""_s (Int -> Bool) or "Nil") ~> w_2$],
+      [$Delta = {(Int -> Bool) or "Nil"))} |-s (Int -> Bool) or "Nil") ~> w_2$],
     ),
-    [$|-""_m t = (Int -> Bool) or "Nil") ~> w_2$],
+    [$|-m t = (Int -> Bool) or "Nil") ~> w_2$],
   ),
-  [$|-""_s (Int, (Int -> Bool) or "Nil") ~> (w_1, w_2)$],
+  [$|-s (Int, (Int -> Bool) or "Nil") ~> (w_1, w_2)$],
 ))
 
 #exemple_t1
@@ -222,8 +222,8 @@ Règles pour les var de type :
 #let var_t(sigma: $sigma$, typ: $alpha$, wit: $w$, Delta: $Delta$) = rule(
   name: $"var"_t$,
   $|- "Polyw"(typ) = sigma$,
-  $Delta |-""_m typ sigma ~> wit$,
-  $Delta |-""_s typ ~> (sigma, wit)$,
+  $Delta |-m typ sigma ~> wit$,
+  $Delta |-s typ ~> (sigma, wit)$,
 )
 
 #let var_w(sigma: $sigma$, typ: $alpha$, wit: $w$) = rule(
@@ -294,13 +294,13 @@ exemple polyw1 : $t = alpha and beta$
       rule(
         name: $"Base"_t$,
         $42 lt.eq.slant BigOne$,
-        ${BigOne} |-""_s BigOne ~> 42$,
+        ${BigOne} |-s BigOne ~> 42$,
       ),
-      $|-""_m alpha {alpha |-> BigOne} = BigOne ~> 42$,
+      $|-m alpha {alpha |-> BigOne} = BigOne ~> 42$,
     ),
-    $|-""_s alpha ~> ({alpha |-> BigOne},42)$,
+    $|-s alpha ~> ({alpha |-> BigOne},42)$,
   ),
-  $|-""_s alpha or beta ~> ({alpha |-> BigOne}, 42)$,
+  $|-s alpha or beta ~> ({alpha |-> BigOne}, 42)$,
 ))
 
 #exemple_pw1
