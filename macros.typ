@@ -15,3 +15,4 @@
 #let Tag = text(font: "New Computer Modern Math", [Tag])
 #let Tuple = text(font: "New Computer Modern Math", [Tuple])
 #let Any = text(font: "New Computer Modern Math", [Any])
+#let polyw = text(font: "New Computer Modern Math", [polyw])

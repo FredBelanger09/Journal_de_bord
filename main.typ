@@ -12,6 +12,7 @@
 #show: shorthands.with(
   ($|-m$, $attach(tack.r, br: m)$),
   ($|-s$, $attach(tack.r, br: s)$),
+  ($|-a$, $attach(tack.r, br: a)$),
   ($|-$, $tack.r$),
   ($~=$, $tilde.eq$),
 )
@@ -25,7 +26,6 @@
   ),
   // Insert your abstract after the colon, wrapped in brackets.
   // Example: `abstract: [This is my abstract...]`
-  abstract: [On a fait des bêtises sur les problèmes de typage],
   date: "16 Avril 2026",
 )
 #set cite(style: "chicago-author-date")
@@ -66,12 +66,12 @@ Comme ces types sont définis co-inductivement, ils peuvent être définis comme
 ]<contractif>
 
 ==== Exemple
-$t = Nil or (Int, t)$ sous forme d'arbre:
+$t = Nil or (Int times t)$ sous forme d'arbre:
 
 #tidy-tree-graph(compact: false)[
   - $\_ or \_$
     - $Nil$
-    - $(\_ , \_ )$
+    - $\_ times \_$
       - $Int$
       - $t$
 ]
@@ -147,13 +147,13 @@ $ t ::= or.big_i b_i or or.big_i A_i or or.big_i (t_1^i times t_2^i) $
 
 Un témoin est donc soit une constante d'un cas de base, soit un type flèche, soit un tuple.
 On propose donc comme type témoin :
-$ w ::= c | A | (w,w) $
+$ w ::= c | A | (w,w) $<witness>
 
 
 ==== Exemple :
 $w = (42, (True, False))$ est un témoin correct dans notre syntaxe.
 
-== Définition de $w >> t$
+== Définition de type_of(w) et $w >> t$
 
 On peut donc créer l'algorithme type_of(w) qui pour tout témoin w renvoie le type t contenant uniquement w :
 
@@ -179,13 +179,13 @@ On peut maintenant décrire le fonctionnement de l'algorithme qui pour chaque ty
 Ici, $Delta$ est l'ensemble des types déjà visité par l'algorithme. Ainsi, si l'on retombe sur le même type, on sait que celui-ci est infini, donc vide (comme expliqué ici *RAJOUTER LIEN*). On interdit donc de repasser plusieurs par un type déjà visité avec la règle $t in.not Delta$.
 
 ==== Exemple :
-On a $t = (Int, (Int -> Bool) or (Bool -> Int))$
+On a $t = Int times ((Int -> Bool) or Nil)$
 
 Cela nous donne l'arbre :
 
 #align(center, exemple_t1)
 
-On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t = (Int, (Int -> Bool) or (Bool -> Int))$ :
+On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t = Int times ((Int -> Bool) or Nil)$ :
 
 #align(center, exemple_w1)
 
@@ -205,11 +205,11 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 
   Pour $times_t$ : $s$ passe de 1 à 0 car on passe d'une règle $|-s$ à des règles $|-m$, on a donc bien  $(|beth \\ Delta|,u,0) lt_("lex") (|beth \\ Delta|,u,1)$.
 
-  Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|beth \\ Delta|,1,1) lt_("lex") (|beth \\ Delta| ,u,1)$
+  Pour $or_1_t$ : $u$ passe à 1, donc on a bien $(|beth \\ Delta|,1,1) lt_("lex") (|beth \\ Delta| ,u,1)$.
 
-  Pour $or_2_t$ : $u$ passe à $u - 1$, donc on a bien $(|beth \\ Delta|,u - 1,1) lt_("lex") (|beth \\ Delta|,u,1)$
+  Pour $or_2_t$ : $u$ passe à $u - 1$, donc on a bien $(|beth \\ Delta|,u - 1,1) lt_("lex") (|beth \\ Delta|,u,1)$.
 
-  Pour $t in.not Delta$ : $u$ est susceptible d'augmenter, mais $Delta$ augmente, donc $|beth \\ Delta|$ décroît de 1,on a donc bien $(|beth \\ Delta| -1,u',1) lt_("lex") (|beth \\ Delta|,u,0)$
+  Pour $t in.not Delta$ : $u$ est susceptible d'augmenter, mais $Delta$ augmente, donc $|beth \\ Delta|$ décroît de 1,on a donc bien $(|beth \\ Delta| -1,u',1) lt_("lex") (|beth \\ Delta|,u,0)$.
 
   Donc par induction fondée sur l'ordre lexicographique de $(|beth \\ Delta|,u,s)$, pour tout type $t lt.eq.not BigZero, t~> w$ termine.
 ]
@@ -218,7 +218,7 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 
 #theorem()[
   Pour tout type $t$ non-vide, $"si" emptyset |-s t ~> w "alors" w >> t$.
-  En d'autres termes, $forall t, "type_of"("Witness"(t)) lt.eq.slant t$.
+  En d'autres termes, $forall t lt.eq.not BigZero, "type_of"("Witness"(t)) lt.eq.slant t$.
 ]<surete>
 
 #proof()[
@@ -324,97 +324,117 @@ ${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$
 ==== Exemple
 ${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
 
-#import "@preview/quick-maths:0.2.1": shorthands
-#import "@preview/tdtr:0.5.5": tidy-tree-graph
-#import "@preview/thmbox:0.3.0": *
-
-
-
-#import "macros.typ": *
-#import "rules.typ": *
-
-
-
-#show: shorthands.with(
-  ($|-m$, $attach(tack.r, br: m)$),
-  ($|-s$, $attach(tack.r, br: s)$),
-  ($|-$, $tack.r$),
-  ($~=$, $tilde.eq$),
-)
-#let beth = strong([$beth$])
-
-
-
 = Les variables de type
 
 == Définition
-On veut maintenant pouvoir détecter les variables de type non-vides, on commence donc par étendre notre définition de t :
+
+On veut maintenant intégrer les variables de type dans notre recherche de témoin. On commence donc par étendre notre définition de t :
 
 $ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
 
 
 #definition()[
-  Un type $t := alpha$ est non-vide si et seulement si il existe une substitution $sigma$ tel que $t sigma lt.eq.not BigZero$.
+  Un type $t$ est *non-vide* si et seulement si il existe une substitution $sigma$ tel que $t sigma lt.eq.not BigZero$.
 ]
 
 On veut donc renvoyer une substitution $sigma$ et un témoin de $t sigma$, avec comme conditions que Vars($t sigma$) = $emptyset$, $t sigma lt.eq.not BigZero$ et Witness($t sigma$) $>> t sigma$.
 
-On étend donc notre témoin :
-$ w ::= c | A | (w,w) |(sigma,w) $
-Avec $sigma$ l'ensemble des substitutions.
+Notre témoin ressemblera donc à :
+$ w' ::= (sigma, w) $
+Avec $sigma$ l'ensemble des substitutions et w le témoin présenté ici @witness.
+
+#definition()[
+  Le *tallying* (noté $"Tally"[(s_1, t_1),..., (s_n,t_n)] = {(alpha, sigma_1(alpha)),...}$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall (s_j, t_j) in (s,t), s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
+]
 
 == Présentation de l'algorithme
-On a donc maintenant besoin d'implémenter l'algorithme, nommé polyw$(t)$ qui pour tout type t renvoie la substitution $sigma$ tel que $t sigma$ n'ai plus de variables de types (EN TOP LEVEL ????) et $t sigma$ ne soit pas vide.\
-On propose donc ces règles d'inférences :
+On a donc maintenant besoin d'implémenter l'algorithme, nommé polyw$(t)$ qui pour tout type t renvoie la substitution $sigma$ tel que $t sigma$ n'ai plus de variables de types et $t sigma$ ne soit pas vide.\
+On propose donc cet algorithme :
 
-#rule_polyw
+$
+  polyw (t) = cases(
+    {} & "si" "Vars"(t) = emptyset,
+    union.big_(alpha in "Vars"(t)) {alpha |-> BigZero } & "si" "Tally"[(t, BigZero)] = emptyset,
+    sigma' r union r & "sinon",
+    & " où" & "Tally"[(t,BigZero)] = {(alpha, sigma(alpha)),...},
+    && s = sigma(alpha){alpha <- #text(red)[$BigZero$]},
+    && sigma' = {alpha |-> not s},
+    && r = polyw(t sigma')
+  )
+$
+
+COMMENT DECRIRE CA CORRECTEMENT ?
 
 ==== Exemple :
 Pour $alpha and beta$ on a :
+COMMENT FAIRE UN JOLI EXEMPLE ?
 
-#exemple_pw1
+// A CHANGER ET REECRIRE #text(green)[
+//   #rule_polyw
+
+//   ==== Exemple :
+//   Pour $alpha and beta$ on a :
+
+//   #exemple_pw1
 
 
-
+// ]
 #theorem()[
   Pour tout type $t$, polyw$(t)$ termine.
 ]<polyw_terminaison>
 
 #proof()[
-  Montrons que, quelque que soit la règle suivie,soit $|"Vars"(t)|$ décroît, soit on est sur un cas de base, ce qui assure la terminaison de l'algorithme :
+  Montrons par disjonction de cas que soit $|"Vars"(t)|$ décroît, soit on est sur un cas de base, ce qui assure la terminaison de l'algorithme :
 
-  Pour $"Base"_"polyw"$ : Comme il suffit de renvoyer l'ensemble vide, cela se fait en temps finit.
+  *Si $"Vars"(t) = emptyset$* : Comme il suffit de renvoyer la substitution identité, cela se fait en temps finit.
 
-  Pour $"Tally"_"polyw"$ : S'assurer que $forall sigma, t sigma lt.eq.not BigZero$ se fait en temps fini par l'algorithme de tallying (cf METTRE LA REF), de même, récupérer les variable de type de t se fait en temps fini, donc produire $sigma = union.big_(alpha in "Vars"(t)) {alpha |-> BigZero}$ se fait en temps fini.
+  *Si $"Tally"[(t, BigZero)] = emptyset$* :  Récupérer les variable de type de t se fait en temps fini, donc produire $sigma = union.big_(alpha in "Vars"(t)) {alpha |-> BigZero}$ se fait en temps fini.
 
-  Pour $"Gen"_"polyw"$ : La création de $sigma'$ (QUI EST A RETRAVAILLER OFC) est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|"Vars"(t sigma')| lt |"Vars"(t)|$.
+  *Sinon* : La création de $sigma'$ est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|"Vars"(t sigma')| lt |"Vars"(t)|$.
 
-  Donc par induction fondé sur l'ordre numérique de $|"Vars"(t)|$, pour tout type $t$, $"polyw"(t)$ termine.
+  Donc par disjonction de cas et induction fondée sur l'ordre numérique de $|"Vars"(t)|$, pour tout type $t$, $polyw(t)$ termine.
 
 ]
+#theorem()[
+  Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$.
+]<vars1_polyw>
+
 
 #theorem()[
-  Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$ et $t sigma lt.eq.not BigZero$
+  Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $t sigma lt.eq.not BigZero$.
 ]<vars_polyw>
 
 #proof()[
-  Montrer que si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$ est trivial. En effet, les 2 cas de bases, $"Base"_"polyw"$ et $"Tally"_"polyw"$ s'assurent que $"Vars"(t) = emptyset$ (donc pour toute substitution $sigma$, $"Vars"(t sigma) = emptyset$), ou que pour toute variable $alpha$ de $t$, celle-ci soit substituée par $BigZero$.
+
+  Montrer que si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$ est trivial. COMMENT EXPLIQUER PK C'EST TRIVIAL ?
+
+  // En effet, les 2 cas de bases, $"Base"_polyw$ et $"Tally"_polyw$ s'assurent que $"Vars"(t) = emptyset$ (donc pour toute substitution $sigma$, $"Vars"(t sigma) = emptyset$), ou que pour toute variable $alpha$ de $t$, celle-ci soit substituée par $BigZero$.
 
   Montrons maintenant par induction que pour tout type $t lt.eq.not BigZero$, si $"poylw"(t) = sigma$, alors $t sigma lt.eq.not BigZero$ :
 
-  Pour $"Base"_"polyw"$ : Comme $t lt.eq.not BigZero$, si $sigma = {}$ alors $t = t sigma lt.eq.not BigZero$
+  *Si $"Vars"(t) = emptyset$* :  Comme $t lt.eq.not BigZero$, si $sigma = {}$ alors $t = t sigma lt.eq.not BigZero$
 
-  Pour $"Tally"_"polyw"$ : Par définition, on a $forall sigma, t sigma lt.eq.not BigZero$.
+  *Si $"Tally"[(t, BigZero)] = emptyset$* : Par définition, on a $forall sigma, t sigma lt.eq.not BigZero$.
 
-  Pour $"Gen"_"polyw"$ : IL FAUT RESOUDRE LA DEF DE SIGMA'
+  *Sinon* :\
+  On a $sigma(alpha) = (alpha or t_inf) and t_sup$\
+  $"Donc" not s = sigma(alpha){alpha <- BigZero} &= not ((BigZero or t_inf)and t_sup)\
+  &= not (BigZero or t_inf) or not t_sup\
+  &= not BigZero and not t_inf or not t_sup lt.eq.not BigZero$\
+  Donc $not s lt.eq.not BigZero "et" t lt.eq.not BigZero, "donc" t {alpha |-> not s} = t sigma' lt.eq.not BigZero$.
 
 
-
+  // \ \ \ \
+  // A ECRIRE MIEUX QUE CA : $sigma' ~= {alpha |-> not ((BigZero or t_inf) and t_sup)}$\
+  // $not ((BigZero or t_inf) and t_sup)}=&not (BigZero or t_inf) or not t_sup \
+  // & (not BigZero and not t_inf) or not t_sup$
+  // COMMENT PROUVER QUE SI $t_sup = BigOne$ alors on atteint pas ce cas ? \
+  // $arrow.r.hook$ si $t_sup = BigOne$ alors $forall sigma, t sigma lt.eq.slant BigZero$ donc $t lt.eq.slant BigZero$ ce qui est impossible LET'S FUCKING GOOOOOOOOOOO
 ]
 
 == Extension des règles de Witness
 
-On peut donc maintenant prendre en compte le type $alpha$ dans notre algorithme Witness$(t)$ en ajoutant la règle suivante :
+On veut maintenant commencer notre algorithme en retirant tout les variables de type :
 
 #prooftree(var_t())
 
@@ -428,9 +448,9 @@ On a $t = alpha or beta$. Cela nous donne l'arbre :
 ]
 
 #proof()[
-  Comme vu dans le @terminaison, on utilise une preuve par induction sur l'ordre lexicographique de $(|beth\\Delta|, u, s)$. On ajoute ici la preuve de sa décroissance pour la règle $"var"_t$ :
+  Il suffit de rajouter $a = cases(1 "si" |-a, 0 "sinon")$ au début de l'ordre lexicographique du @terminaison,ce qui nous donne $(a,|beth\\Delta|, u, s)$. Les autres règles ne changent pas, et on ajoute la preuve de sa décroissance pour la règle $"var"_t$ :
 
-  Pour $"var"_t$ : On sait que $"polyw"(alpha) = sigma$ termine par le @polyw_terminaison, on passe de l'autre côté de s = 1 à s = 0 car l'on passe d'une règle $|-s$ à une règle $|-m$, on a donc bien $(|beth\\Delta|, u, 0) lt (|beth\\Delta|, u, 1)$.
+  Pour $"var"_t$ : On sait que $polyw(alpha) = sigma$ termine par le @polyw_terminaison, et l'on passe de $a= 1$ à $a = 0$ car l'on passe d'une règle $|-a$ à une règle $|-s$, on a donc bien $(0,|beth|, u, 1) lt (1,|beth|, u, 0)$. #text(red)[(NB : on peut aussi rajouter $s = 2 "si" |-a$ ?)]
 
   Donc notre algorithme termine toujours bien.
 ]
@@ -442,16 +462,17 @@ On pour donc ajouter les 2 règles suivantes à type_of et $>>$ :
 
 #rule_var
 
-
 #lemma()[
-  L'ajout des nouvelles règles pour les variables de type n'invalide pas le @surete. ($"Si" emptyset |-s t ~> w "alors" w >> t$)
+  L'ajout des nouvelles règles pour les variables de type n'invalide pas le @surete. ($"Si" emptyset |-a t ~> w "alors" w >> t$) CHANGEMENT DE $|-s à |-a !!$
 ]
 #proof()[
   On a toujours $P(t) ::= "Si" emptyset |-s t ~> w "alors" w >> t$.
   On suppose $P(alpha sigma)$, montrons que $P(alpha)$ :
 
-  Supposons $alpha ~> (sigma,w)$, alors par var$""_t$, on a $"polyw"(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$. Par le @vars_polyw, on sait que $"Vars"(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
+  Supposons $alpha ~> (sigma,w)$, alors par var$""_t$, on a $polyw(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$. Par le @vars_polyw, on sait que $"Vars"(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
 ]
 
+
+#pagebreak()
 
 #bibliography("bibliography.bib", full: true)

@@ -82,3 +82,12 @@ Implémentation des var de type, changement du code de test, ajout des tests, d�
 
 07/05/26 :
 Création des règles d'inférences de polyw, preuve de terminaison de polyw et extension des preuves de terminaison et de sûreté de l'algo (pas finis)
+
+12/05/26 :
+Discussion avec Kim, réécriture de polyw (et du code en règle général), découverte d'un bug sur "x where x = 'a & (('a, nil) | ('a, x))" (= 'a & 'a list avec des listes non-vides)
+La solution est-elle de passer sigma_fix à empty au lieu de Any ? A discuter avec Kim. Voir comment récupérer t_sup et t_inf.
+
+13/05/26 :
+Preuve que l'algo marche avec sigma_fix = alpha |-> empty. 
+Refactorisation du code pour placer polyw au bon endroit dans l'algo, réécriture de polyw dans le rapport pour enlever les règle et faire une disjonction de cas.
+Réécriture d'une grosse partie du chapitre "Var de type" pour coller à cette nouvelle définition, ajout de la def de "tallying"

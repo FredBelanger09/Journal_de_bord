@@ -1,7 +1,13 @@
 #import "@preview/curryst:0.6.0": prooftree, rule, rule-set
 #import "@preview/quick-maths:0.2.1": shorthands
 #import "macros.typ": *
-#show: shorthands.with(($|-m$, $attach(tack.r, br: m)$),($|-s$, $attach(tack.r, br: s)$), ($|-$, $tack.r$), ($~=$, $tilde.eq$))
+#show: shorthands.with(
+  ($|-m$, $attach(tack.r, br: m)$),
+  ($|-s$, $attach(tack.r, br: s)$),
+  ($|-a$, $attach(tack.r, br: a)$),
+  ($|-$, $tack.r$),
+  ($~=$, $tilde.eq$),
+)
 
 #let to_ty_base(wit: $c$, typ: $b$) = rule(
   name: $"Base"_"type_of"$,
@@ -86,7 +92,7 @@ RULES FOR $t ~> w$ :
 
 #let t_tuple(Delta: $Delta$, typ1: $t_1$, typ2: $t_2$, wit1: $w_1$, wit2: $w_2$) = rule(
   name: [$times_t$],
-  [$Delta attach(tack.r,br:m) typ1 ~> wit1$],
+  [$Delta attach(tack.r, br: m) typ1 ~> wit1$],
   [$Delta |-m typ2 ~> wit2$],
   [$Delta |-s typ1 times typ2 ~> (wit1, wit2)$],
 )
@@ -122,7 +128,7 @@ RULES FOR $t ~> w$ :
 #rule_t
 
 
-Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
+Tree for $t = (Int, (Int -> Bool) or Nil)$ :
 
 
 #let exemple_t1 = prooftree(rule(
@@ -143,11 +149,11 @@ Tree for $t = (Int, (Int -> Bool) or "Nil")$ :
         wit: $w_2 = Int -> BigZero$,
       ),
 
-      [$Delta = {(Int -> Bool) or "Nil"))} |-s (Int -> Bool) or "Nil") ~> w_2$],
+      [$Delta = {(Int -> Bool) or Nil))} |-s (Int -> Bool) or Nil) ~> w_2$],
     ),
-    [$|-m t = (Int -> Bool) or "Nil") ~> w_2$],
+    [$|-m t = (Int -> Bool) or Nil) ~> w_2$],
   ),
-  [$|-s (Int, (Int -> Bool) or "Nil") ~> (w_1, w_2)$],
+  [$|-s Int times ((Int -> Bool) or Nil) ~> (w_1, w_2)$],
 ))
 
 #exemple_t1
@@ -164,10 +170,10 @@ Tree for (42, Int -> O) : (Int, (Int -> Bool) or Nil)
       [$Int -> BigZero lt.eq.slant (Int -> Bool)$],
       [$|- Int -> BigZero >> (Int -> Bool)$],
     ),
-    [$(Int -> Bool) lt.eq.slant (Int -> Bool) or "Nil"$],
-    [$|- Int -> BigZero >> (Int -> Bool) or "Nil"$],
+    [$(Int -> Bool) lt.eq.slant (Int -> Bool) or Nil$],
+    [$|- Int -> BigZero >> (Int -> Bool) or Nil$],
   ),
-  [$|- (42, Int -> BigZero) >> (Int, (Int -> Bool) or "Nil")$],
+  [$|- (42, Int -> BigZero) >> Int times ((Int -> Bool) or Nil)$],
 ))
 
 #align(center, exemple_w1)
@@ -221,9 +227,9 @@ Règles pour les var de type :
 
 #let var_t(sigma: $sigma$, typ: $alpha$, wit: $w$, Delta: $Delta$) = rule(
   name: $"var"_t$,
-  $|- "Polyw"(typ) = sigma$,
-  $Delta |-m typ sigma ~> wit$,
-  $Delta |-s typ ~> (sigma, wit)$,
+  $"Polyw"(typ) = sigma$,
+  ${} |-s typ sigma ~> wit$,
+  ${} |-a typ ~> (sigma, wit)$,
 )
 
 #let var_w(sigma: $sigma$, typ: $alpha$, wit: $w$) = rule(
@@ -275,35 +281,28 @@ exemple polyw1 : $t = alpha and beta$
 ))
 
 
+
+
 #let exemple_pw2 = prooftree(rule(
-  name: $or_t$,
+  name: $"var"_t$,
   rule(
-    name: $"var"_t$,
-    rule(
-      name: $"Gen"_"polyw"$,
-      $sigma' = {alpha |-> BigOne}$,
-      rule(
-        name: $"Base"_"polyw"$,
-        $"Vars"(t) = emptyset$,
-        $|- "polyw"(alpha sigma' = BigOne) = {}$,
-      ),
-      $|- "polyw"(alpha) = sigma' union {} = {alpha |-> BigOne}$,
-    ),
-    rule(
-      name: $t in.not Delta$,
-      rule(
+    $"COMMENT EXPLIQUER CA SIMPLEMENT"$,
+    $polyw(alpha or beta) = {alpha |-> BigOne}$),
+  rule(
         name: $"Base"_t$,
         $42 lt.eq.slant BigOne$,
-        ${BigOne} |-s BigOne ~> 42$,
+        ${} |-s BigOne ~> 42$,
       ),
-      $|-m alpha {alpha |-> BigOne} = BigOne ~> 42$,
-    ),
-    $|-s alpha ~> ({alpha |-> BigOne},42)$,
-  ),
-  $|-s alpha or beta ~> ({alpha |-> BigOne}, 42)$,
+  ${}|-a alpha or beta ~> ({alpha |-> BigOne}, 42)$,
 ))
+
 
 #exemple_pw1
 
-#pagebreak()
 #exemple_pw2
+\ \ \
+$polyw(alpha or beta) &->  "Tally"[(alpha or beta, BigZero)] = {(alpha, BigZero),...} \ 
+&-> s = BigZero{alpha <- BigZero} = BigZero \
+&-> sigma' = {alpha |-> not BigZero} = {alpha |-> BigOne} \
+& -> r = polyw((alpha or beta) {alpha |-> BigOne}) = polyw(BigOne) \
+& -> "Vars"(BigOne) = emptyset "donc" polyw (alpha or beta) = {alpha |-> BigOne}$
