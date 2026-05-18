@@ -16,3 +16,5 @@
 #let Tuple = text(font: "New Computer Modern Math", [Tuple])
 #let Any = text(font: "New Computer Modern Math", [Any])
 #let polyw = text(font: "New Computer Modern Math", [polyw])
+#let Vars = text(font: "New Computer Modern Math", [Vars])
+#let Tally = text(font: "New Computer Modern Math", [Tally])

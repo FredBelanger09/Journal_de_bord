@@ -285,9 +285,7 @@ exemple polyw1 : $t = alpha and beta$
 
 #let exemple_pw2 = prooftree(rule(
   name: $"var"_t$,
-  rule(
-    $"COMMENT EXPLIQUER CA SIMPLEMENT"$,
-    $polyw(alpha or beta) = {alpha |-> BigOne}$),
+    $polyw(alpha or beta) = {alpha |-> BigOne}$,
   rule(
         name: $"Base"_t$,
         $42 lt.eq.slant BigOne$,
@@ -297,12 +295,10 @@ exemple polyw1 : $t = alpha and beta$
 ))
 
 
+
+
+
 #exemple_pw1
 
 #exemple_pw2
-\ \ \
-$polyw(alpha or beta) &->  "Tally"[(alpha or beta, BigZero)] = {(alpha, BigZero),...} \ 
-&-> s = BigZero{alpha <- BigZero} = BigZero \
-&-> sigma' = {alpha |-> not BigZero} = {alpha |-> BigOne} \
-& -> r = polyw((alpha or beta) {alpha |-> BigOne}) = polyw(BigOne) \
-& -> "Vars"(BigOne) = emptyset "donc" polyw (alpha or beta) = {alpha |-> BigOne}$
+

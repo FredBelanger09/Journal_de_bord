@@ -7,6 +7,7 @@
 
 #import "macros.typ": *
 #import "rules.typ": *
+#import "algos.typ" : *
 
 
 #show: shorthands.with(
@@ -344,30 +345,20 @@ $ w' ::= (sigma, w) $
 Avec $sigma$ l'ensemble des substitutions et w le témoin présenté ici @witness.
 
 #definition()[
-  Le *tallying* (noté $"Tally"[(s_1, t_1),..., (s_n,t_n)] = {(alpha, sigma_1(alpha)),...}$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall (s_j, t_j) in (s,t), s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
+  Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)] = {(alpha, sigma_1(alpha)),...}$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall (s_j, t_j) in (s,t), s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
 ]
 
 == Présentation de l'algorithme
 On a donc maintenant besoin d'implémenter l'algorithme, nommé polyw$(t)$ qui pour tout type t renvoie la substitution $sigma$ tel que $t sigma$ n'ai plus de variables de types et $t sigma$ ne soit pas vide.\
 On propose donc cet algorithme :
 
-$
-  polyw (t) = cases(
-    {} & "si" "Vars"(t) = emptyset,
-    union.big_(alpha in "Vars"(t)) {alpha |-> BigZero } & "si" "Tally"[(t, BigZero)] = emptyset,
-    sigma' r union r & "sinon",
-    & " où" & "Tally"[(t,BigZero)] = {(alpha, sigma(alpha)),...},
-    && s = sigma(alpha){alpha <- #text(red)[$BigZero$]},
-    && sigma' = {alpha |-> not s},
-    && r = polyw(t sigma')
-  )
-$
+#polyw_algo
 
-COMMENT DECRIRE CA CORRECTEMENT ?
 
 ==== Exemple :
 Pour $alpha and beta$ on a :
-COMMENT FAIRE UN JOLI EXEMPLE ?
+
+#ex_polyw1
 
 // A CHANGER ET REECRIRE #text(green)[
 //   #rule_polyw
@@ -384,44 +375,47 @@ COMMENT FAIRE UN JOLI EXEMPLE ?
 ]<polyw_terminaison>
 
 #proof()[
-  Montrons par disjonction de cas que soit $|"Vars"(t)|$ décroît, soit on est sur un cas de base, ce qui assure la terminaison de l'algorithme :
+  Montrons par disjonction de cas que soit $|Vars(t)|$ décroît, soit on est sur un cas de base, ce qui assure la terminaison de l'algorithme :
 
-  *Si $"Vars"(t) = emptyset$* : Comme il suffit de renvoyer la substitution identité, cela se fait en temps finit.
+  *Si $Vars(t) = emptyset$* : Comme il suffit de renvoyer la substitution identité, cela se fait en temps finit.
 
-  *Si $"Tally"[(t, BigZero)] = emptyset$* :  Récupérer les variable de type de t se fait en temps fini, donc produire $sigma = union.big_(alpha in "Vars"(t)) {alpha |-> BigZero}$ se fait en temps fini.
+  *Si $Tally[(t, BigZero)] = emptyset$* :  Récupérer les variable de type de t se fait en temps fini, donc produire $sigma = union.big_(alpha in Vars(t)) {alpha |-> BigZero}$ se fait en temps fini.
 
-  *Sinon* : La création de $sigma'$ est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|"Vars"(t sigma')| lt |"Vars"(t)|$.
+  *Sinon* : La création de $sigma'$ est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|Vars(t sigma')| lt |Vars(t)|$.
 
-  Donc par disjonction de cas et induction fondée sur l'ordre numérique de $|"Vars"(t)|$, pour tout type $t$, $polyw(t)$ termine.
+  Donc par disjonction de cas et induction fondée sur l'ordre numérique de $|Vars(t)|$, pour tout type $t$, $polyw(t)$ termine.
 
 ]
 #theorem()[
-  Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$.
+  Pour tout type $t$ non vide, si $polyw(t) = sigma$, alors $Vars(t sigma) = emptyset$.
 ]<vars1_polyw>
 
+#proof()[
+  Notre fonction $polyw$ a 2 cas de bases, et sa terminaison est assurée, donc il suffit de considérer uniquement eux :\
+  Si $Vars(t) = emptyset$ alors par définition, $Vars(t sigma) = emptyset$.\
+  Si $Tally[(t,BigZero)] = emptyset$ alors on a $sigma =union.big_(alpha in Vars(t)) {alpha |-> BigZero}$ donc par définition, $Vars(t sigma) = emptyset$.
+
+  Donc $forall t lt.eq.not BigZero, polyw(t) = sigma => Vars(t sigma) = emptyset$
+]
 
 #theorem()[
   Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $t sigma lt.eq.not BigZero$.
-]<vars_polyw>
+]<vars2_polyw>
 
 #proof()[
 
-  Montrer que si $"poylw"(t) = sigma$, alors $"Vars"(t sigma) = emptyset$ est trivial. COMMENT EXPLIQUER PK C'EST TRIVIAL ?
+  Montrons par induction que pour tout type $t lt.eq.not BigZero$, si $polyw(t) = sigma$, alors $t sigma lt.eq.not BigZero$ :
 
-  // En effet, les 2 cas de bases, $"Base"_polyw$ et $"Tally"_polyw$ s'assurent que $"Vars"(t) = emptyset$ (donc pour toute substitution $sigma$, $"Vars"(t sigma) = emptyset$), ou que pour toute variable $alpha$ de $t$, celle-ci soit substituée par $BigZero$.
+  *Si $Vars(t) = emptyset$* :  Comme $t lt.eq.not BigZero$, si $sigma = {}$ alors $t = t sigma lt.eq.not BigZero$
 
-  Montrons maintenant par induction que pour tout type $t lt.eq.not BigZero$, si $"poylw"(t) = sigma$, alors $t sigma lt.eq.not BigZero$ :
-
-  *Si $"Vars"(t) = emptyset$* :  Comme $t lt.eq.not BigZero$, si $sigma = {}$ alors $t = t sigma lt.eq.not BigZero$
-
-  *Si $"Tally"[(t, BigZero)] = emptyset$* : Par définition, on a $forall sigma, t sigma lt.eq.not BigZero$.
+  *Si $Tally[(t, BigZero)] = emptyset$* : Par définition, on a $forall sigma, t sigma lt.eq.not BigZero$.
 
   *Sinon* :\
   On a $sigma(alpha) = (alpha or t_inf) and t_sup$\
   $"Donc" not s = sigma(alpha){alpha <- BigZero} &= not ((BigZero or t_inf)and t_sup)\
   &= not (BigZero or t_inf) or not t_sup\
   &= not BigZero and not t_inf or not t_sup lt.eq.not BigZero$\
-  Donc $not s lt.eq.not BigZero "et" t lt.eq.not BigZero, "donc" t {alpha |-> not s} = t sigma' lt.eq.not BigZero$.
+  Donc $not s lt.eq.not BigZero "et" t lt.eq.not BigZero, "donc" t {alpha |-> not s} = t sigma' lt.eq.not BigZero$. CONDITION NECESSAIRE MAIS PAS SUFFISANTE ?
 
 
   // \ \ \ \
@@ -443,14 +437,18 @@ On a $t = alpha or beta$. Cela nous donne l'arbre :
 
 #exemple_pw2
 
+avec $polyw(alpha or beta)$ se déroulant comme suit :
+
+#ex_polyw2
+
 #lemma()[
   L'algorithme Witness(t) termine toujours avec l'ajout de cette règle.
 ]
 
 #proof()[
-  Il suffit de rajouter $a = cases(1 "si" |-a, 0 "sinon")$ au début de l'ordre lexicographique du @terminaison,ce qui nous donne $(a,|beth\\Delta|, u, s)$. Les autres règles ne changent pas, et on ajoute la preuve de sa décroissance pour la règle $"var"_t$ :
+  Il suffit de rajouter $s = 2 "si" |-a$ à la définition de s donné dans le @terminaison. Les autres règles ne changent pas, et on ajoute la preuve de sa décroissance pour la règle $"var"_t$ :
 
-  Pour $"var"_t$ : On sait que $polyw(alpha) = sigma$ termine par le @polyw_terminaison, et l'on passe de $a= 1$ à $a = 0$ car l'on passe d'une règle $|-a$ à une règle $|-s$, on a donc bien $(0,|beth|, u, 1) lt (1,|beth|, u, 0)$. #text(red)[(NB : on peut aussi rajouter $s = 2 "si" |-a$ ?)]
+  Pour $"var"_t$ : On sait que $polyw(alpha) = sigma$ termine par le @polyw_terminaison, et l'on passe de $s= 2$ à $s = 1$ car l'on passe d'une règle $|-a$ à une règle $|-s$, on a donc bien $(|beth|, u, 1) lt (|beth|, u, 2)$.
 
   Donc notre algorithme termine toujours bien.
 ]
@@ -469,7 +467,9 @@ On pour donc ajouter les 2 règles suivantes à type_of et $>>$ :
   On a toujours $P(t) ::= "Si" emptyset |-s t ~> w "alors" w >> t$.
   On suppose $P(alpha sigma)$, montrons que $P(alpha)$ :
 
-  Supposons $alpha ~> (sigma,w)$, alors par var$""_t$, on a $polyw(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$. Par le @vars_polyw, on sait que $"Vars"(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
+  Supposons $alpha ~> (sigma,w)$, alors par var$""_t$, on a $polyw(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$. Par les @vars1_polyw et @vars2_polyw, on sait que $Vars(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
+
+  Donc notre théorème est toujours sûr.
 ]
 
 

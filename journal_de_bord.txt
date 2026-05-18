@@ -90,4 +90,9 @@ La solution est-elle de passer sigma_fix à empty au lieu de Any ? A discuter av
 13/05/26 :
 Preuve que l'algo marche avec sigma_fix = alpha |-> empty. 
 Refactorisation du code pour placer polyw au bon endroit dans l'algo, réécriture de polyw dans le rapport pour enlever les règle et faire une disjonction de cas.
-Réécriture d'une grosse partie du chapitre "Var de type" pour coller à cette nouvelle définition, ajout de la def de "tallying"
+Réécriture d'une grosse partie du chapitre "Var de type" pour coller à cette nouvelle définition, ajout de la def de "tallying".
+
+15/05/26 : 
+Ajout d'un exemple pour polyw(alpha et beta)
+
+18/05/26 :
