@@ -96,3 +96,19 @@ Réécriture d'une grosse partie du chapitre "Var de type" pour coller à cette 
 Ajout d'un exemple pour polyw(alpha et beta)
 
 18/05/26 :
+Réécriture de not sigma, dans l'idée de faire un argument de diagonalisation
+
+19/05/26 :
+Remplacement de polyw par un DFS. Gros problème : on ne peut "produire" des substitutions qui contiennent empty, any, ou les types du contexte.
+On ne peut donc pas trouver la bonne substitution de ~'a, 'a.
+Je sais pas comment résoudre ça.
+
+20/05/26 :
+Refactorisation du code : pleins de choses peuvent être faites par List.find_map, suppression de 70 lignes wouhouuu
+Toujours pas d'avancée sur les var de types, malgré une grosse réu avec Kim.
+
+21/05/26 :
+Nouvelle méthode pour les variables de type ! Mais je sais pas à quel point elle marche
+
+22/05/26 :
+On décide finalement de créer un semi-algorithme fonctionnel, se basant sur la décrémentation d'un type.

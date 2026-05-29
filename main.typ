@@ -2,12 +2,14 @@
 #import "@preview/quick-maths:0.2.1": shorthands
 #import "@preview/tdtr:0.5.5": tidy-tree-graph
 #import "@preview/thmbox:0.3.0": *
-
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.1": *
+#show: codly-init.with()
 
 
 #import "macros.typ": *
 #import "rules.typ": *
-#import "algos.typ" : *
+#import "algos.typ": *
 
 
 #show: shorthands.with(
@@ -49,7 +51,7 @@ On a une fonction $f : Int -> Int$ et une variable $x : Int or Bool$. Alors l'ap
 
 Les types utilisés dans ce rapport ont été introduits par M. Laurent, K. Nguyen et G. Castagna dans "A Gentle Introduction to Semantic Subtyping" @Cas05b et "Implementing Set-Theoretic Types" @laurent:hal-05369012 comme des types ensemblistes. On les définit comme :
 $ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
-Où $b in BeauB$ sont les cas de bases (en particuliers les constantes $c in BeauC$ ), $alpha in BeauV$ les variables de types, $BigZero$ le type vide et $BigOne$ le supertype de tout les types. $BeauB$ est composé de $Int$ (l'ensemble des entiers relatifs) et Enum (l'ensemble des types énumérés, par exemple bool).
+Où $b in BeauB$ sont les cas de bases (en particuliers les constantes $c in BeauC$ ), $alpha in BeauV$ les variables de types, $BigZero$ le type vide et $BigOne$ le supertype de tout les types.
 
 ==== Exemple :
 $t = (Int, (True -> False)) or 42$ est un type correct dans notre syntaxe.
@@ -81,7 +83,7 @@ On peut aussi représenter cela sous la forme d'un graphe cyclique en remplaçan
 
 Enfin, on considère les types infinis comme vides, car ils sont inconstructibles en pratique (ex : $t = (Int, t) lt.eq.slant BigZero$ ).
 
-Dans un premier temps, nous allons ignorer les variables de types pour la génération du témoin.
+Dans un premier temps, nous allons ignorer les variables de type, nous y reviendront au chapitre 7.
 
 
 #definition()[
@@ -97,7 +99,7 @@ Cette définition nous sera utile plus tard, lors de la création de l'algorithm
 
 En pratique, un type est toujours encodé sus la forme d'une DNF (forme normale disjonctive) :
 $
-  t ::= or.big_i b_i or or.big_i ( and.big_j p_1^(i j) -> p_2^(i j) and and.big_j not(n_1^(i j) -> n_2^(i j))) or or.big_i ( and.big_j (p_1^(i j) times p_2^(i j)) and and.big_j not(n_1^(i j) times n_2^(i j)))
+  t ::= or.big_i b_i or or.big_i ( and.big_j (p_1^(i j) -> p_2^(i j)) and and.big_j not(n_1^(i j) -> n_2^(i j))) or or.big_i ( and.big_j (p_1^(i j) times p_2^(i j)) and and.big_j not(n_1^(i j) times n_2^(i j)))
 $
 
 Avec des atomes positifs, nommés p, et des atomes négatifs, nommés n. On notera que, dû à la récursivité de notre définition, on peut avoir des opérateurs d'union sous les opérateurs d'intersection (si on développe les types flèches et tuples). On appellera quand même cette forme une DNF par la suite, par mesure de simplicité. Les atomes de bases ne sont représentés que comme des unions car il sont très simplement simplifiables.
@@ -128,7 +130,7 @@ On peut simplifier cette définition en transformant la partie sur les tuples en
 \
 Ainsi, on peut réécrire la définition vu plus haut :
 $
-  t ::= or.big_i b_i or or.big_i ( and.big_j p_1^(i j) -> p_2^(i j) and and.big_j not(n_1^(i j) -> n_2^(i j))) or or.big_i (t_1^i times t_2^i)
+  t ::= or.big_i b_i or or.big_i ( and.big_j (p_1^(i j) -> p_2^(i j)) and and.big_j not(n_1^(i j) -> n_2^(i j))) or or.big_i (t_1^i times t_2^i)
 $
 
 
@@ -143,7 +145,9 @@ Un témoin est un habitant de notre type, c'est à dire une valeur constante app
 
 Pour trouver un habitant d'une fonction $f$ de type $t_1 -> t_2$, il faut un langage qui puisse prendre un habitant de $t_1$ et renvoyer le résultat de $f("Witness"(t_1)) = "Witness"(t_2)$.  On pourrait utiliser des $lambda$ termes mais cela serait complexes pour les types récursifs. Enfin, savoir que $42 -> 43$ est un habitant de $Any -> Int$ ne nous aide pas vraiment. Le procédé est donc complexe est contre-productif, nous avons donc choisis de considérer les types flèches (de la forme $or.big_i ( and.big_j p_1^(i j) -> p_2^(i j) and and.big_j not(n_1^(i j) -> n_2^(i j)))$) comme des cas de base. On notera
 $ A ::= and.big_i (p_1^i -> p_2^i) and and.big_j not(n_1^j -> n_2^j) $
-Cela va permettre de réécrire une nouvelle fois notre définition de type :
+
+Cela va nous permettre de réécrire une nouvelle fois notre définition de type :
+
 $ t ::= or.big_i b_i or or.big_i A_i or or.big_i (t_1^i times t_2^i) $
 
 Un témoin est donc soit une constante d'un cas de base, soit un type flèche, soit un tuple.
@@ -197,7 +201,7 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 ]<terminaison>
 
 #proof()[
-  On a, par définition, que $Delta subset.eq beth$, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= 1 "si" |-s, 0 "si" |-m.$\
+  On a, par définition, que $Delta subset.eq beth$, donc $Delta$ est de taille finie. On pose $u$ le nombre d'unions directes dans notre terme, avec $u =1$ si l'on choisit le membre de gauche, et $u = u-1$ si l'on choisit le membre de droite, et $s ::= cases(1 "si" |-s, 0 "si" |-m).$\
   Alors on peut construire le nombre $(beth \\ Delta|,u,s)$ Montrons que, quelque que soit la règle suivie, ce nombre décroît sur l'ordre lexicographique, assurant donc la terminaison de l'algorithme :
 
   Pour $"Base"_t$ : il suffit de prendre un atome de $or.big_i b_i$, ce qui se fait en temps fini.
@@ -243,7 +247,7 @@ On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t
 
 = Extensions
 
-Des extensions ont été rajoutés aux types ensemblistes déjà présents pour couvrir certaines types précis : les n-uplets, les tags et les records. Tout ceux-ci ne sont que des versions spécifiques des tuples, ils ne seront donc pas traités sur le plan théorique. De plus, nos cas de bases peuvent être de 2 types : Int et Enum. On peut donc étendre notre définition de témoin :
+Des extensions ont été rajoutés aux types ensemblistes déjà présents afin de couvrir certaines types précis : les n-uplets, les tags et les records. Ceux-ci ne sont que des versions spécifiques des tuples, ils ne seront donc pas traités sur le plan théorique. De plus, nos cas de bases peuvent être de 2 types : Int et Enum. On peut donc étendre notre définition de témoin :
 $ w ::= i in [|Int|] | e in [|Enum|]| A | (w, w , ... , w) | "tag"(w) | {l_i : w ... l_n : w} $
 
 == Tags
@@ -276,7 +280,7 @@ Les entiers sont représentés comme des intervalles. Il existe 3 cas possibles 
 - $t = [i_1; i_2]$ : retourne $i_1$.
 
 === Enum
-Enum contient tout les types énumérés, incluant notamment les booléens (et les Strings ?). Il peuvent être définis de 2 manières :
+Enum contient tout les types énumérés, incluant notamment les booléens et les chaines de caractères. Il peuvent être définis de 2 manières :
 - comme une union des constantes appartenant à $t$ : on renvoie la première
 - comme une union des constantes appartenant à $not t$ : On retourne une constante de Enum de taille n, n n'étant la taille d'aucune des constantes de $not t$
 
@@ -319,8 +323,8 @@ ${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$
 
 - Si la tail $f'$ est requise, on l'ajoute dans la tail de $w$.
 ==== Exemples
-+ ${x : Int;;" " Bool}$ donnera ${x: 42;; Bool}$.\
-+ ${x : Int;;" " Int?}$ donnera ${x :42}$.
++ ${x : Int;;" " Bool}$ donnera ${x: 42;; True}$.\
++ ${x : Int;;" " Bool?}$ donnera ${x :42}$.
 - Pour chaque paire $(L_i : e_i)$ de exists, si $e_i and f$ est requis, alors on crée un label $l'_i in.not L_i$, on cherche récursivement un témoin $w'_i$ de $e_i and f$ et on ajoute $(l'_i : w'_i)$ *au bindings*.
 ==== Exemple
 ${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
@@ -342,7 +346,7 @@ On veut donc renvoyer une substitution $sigma$ et un témoin de $t sigma$, avec 
 
 Notre témoin ressemblera donc à :
 $ w' ::= (sigma, w) $
-Avec $sigma$ l'ensemble des substitutions et w le témoin présenté ici @witness.
+Avec $sigma$ l'ensemble des substitutions et w le témoin présenté à l'@witness.
 
 #definition()[
   Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)] = {(alpha, sigma_1(alpha)),...}$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall (s_j, t_j) in (s,t), s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
@@ -417,13 +421,6 @@ Pour $alpha and beta$ on a :
   &= not BigZero and not t_inf or not t_sup lt.eq.not BigZero$\
   Donc $not s lt.eq.not BigZero "et" t lt.eq.not BigZero, "donc" t {alpha |-> not s} = t sigma' lt.eq.not BigZero$. CONDITION NECESSAIRE MAIS PAS SUFFISANTE ?
 
-
-  // \ \ \ \
-  // A ECRIRE MIEUX QUE CA : $sigma' ~= {alpha |-> not ((BigZero or t_inf) and t_sup)}$\
-  // $not ((BigZero or t_inf) and t_sup)}=&not (BigZero or t_inf) or not t_sup \
-  // & (not BigZero and not t_inf) or not t_sup$
-  // COMMENT PROUVER QUE SI $t_sup = BigOne$ alors on atteint pas ce cas ? \
-  // $arrow.r.hook$ si $t_sup = BigOne$ alors $forall sigma, t sigma lt.eq.slant BigZero$ donc $t lt.eq.slant BigZero$ ce qui est impossible LET'S FUCKING GOOOOOOOOOOO
 ]
 
 == Extension des règles de Witness
@@ -472,6 +469,110 @@ On pour donc ajouter les 2 règles suivantes à type_of et $>>$ :
   Donc notre théorème est toujours sûr.
 ]
 
+= Variable de type : Electric boogaloo
+== Définition
+
+On veut maintenant intégrer les variables de type dans notre recherche de témoin. On commence donc par étendre notre définition de t :
+
+$ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
+
+
+#definition()[
+  Un type $t$ est *non-vide* si et seulement si il existe une substitution $sigma$ tel que $t sigma lt.eq.not BigZero$.
+]
+
+On veut donc renvoyer une substitution $sigma$ et un témoin de $t sigma$, avec comme conditions que Vars($t sigma$) = $emptyset$, $t sigma lt.eq.not BigZero$ et Witness($t sigma$) $>> t sigma$.
+
+Notre témoin ressemblera donc à :
+$ w' ::= (sigma, w) $
+Avec $sigma$ l'ensemble des substitutions et w le témoin présenté à l'@witness.
+
+#definition()[
+  Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)] = [[(alpha¹, sigma_1(alpha¹)),..., (alpha^k, sigma_1(alpha^k))] , ... , [(alpha¹, sigma_n(alpha¹)), ... , (alpha^k, sigma_n(alpha^k))]]$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall j lt.eq n, s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
+
+  De plus, pour toute variable $alpha^i$, on ne peut trouver dans les bornes inférieures de sa substitution les variables $alpha^(i+1),...,alpha^k$. Ainsi, $t^k_inf "et" t^k_sup$ ne peuvent contenir aucune variables de type.
+
+  Enfin, si une variable n'est pas nécéssaire pour une substitution, on a ${alpha^i |-> (alpha^i or BigZero) and BigOne}$. On dit que la variable est débornée pour une substitution.
+]
+
+==== Exemple
+
+$Tally[((alpha, beta), BigZero)]&= [ \
+  &[(alpha, BigZero), (beta, beta)],\
+  &[(alpha, alpha), (beta, BigZero)]\
+]$
+
+En pratique, on représentera souvent le tallying sous la forme d'un tableau :
+
+#grid(
+
+  columns: 5,
+  rows: 5,
+  inset: (x: 15pt, y: 7pt),
+  stroke: 1pt,
+  [tally], [$alpha^1$], [$alpha^2$], [...], [$alpha^k$],
+  [$sigma_1$], [$i^1_1, s^1_1$], [$i^2_1, s^2_1$], [...], [$i^k_1,s^k_1$],
+  [$sigma_2$], [$i^1_2, s^1_2$], [$i^2_2, s^2_2$], [...], [$i^k_2,s^k_2$],
+  [...], [...], [...], [...], [...],
+  [$sigma_n$], [$i^1_n, s^1_n$], [$i^2_n, s^2_n$], [...], [$i^k_n,s^k_n$],
+)
+
+Avec $forall i <= k', forall j, alpha_i in.not Vars(i^(k')_j) union Vars(s^(k')_j)$.
+
+==== Exemple
+
+Pour $Tally[((alpha, beta), BigZero)]$ :
+
+#grid(
+
+  columns: 3,
+  rows: 3,
+  inset: (x: 15pt, y: 7pt),
+  stroke: 1pt,
+  [], [$alpha$], [$beta$],
+  [$sigma_1$], [$BigZero, BigZero$], [$BigZero, BigOne$],
+  [$sigma_2$], [$BigZero, BigOne$], [$BigZero, BigZero$],
+)
+
+#definition()[
+  On dit qu'une substitution $sigma_j$ est *débornée* pour une variable $alpha^i$ si on a $inf_j^i lt.eq.slant BigZero$ et $sup_j^i gt.eq.slant BigOne$. Cela veut dire que cette variable n'a pas de rôle dans la substitution. 
+]
+
+#note()[
+  Toutes les substitutions de $Tally[(t, BigZero)]$ avec t non vide sont bornées sur au moins une variable. Sinon, elle serait équivalent à la substitution identité ${}$, donc $t{} lt.eq.slant BigZero$, donc t serait vide. .
+]
+
+
+== Présentation de l'algorithme
+Notre but est donc, de créer un algorithme (nommé polyw) qui substitue les variables de type sans que le type ne finissent vide. En d'autres termes, il doit supprimer les colonnes du tableau sans que toutes les cases d'une lignes ne deviennent $BigZero$ et $BigOne$ (donc que la substitution identité ne soit pas une solution du tallying). Si aucune variable n'aparait dans les bornes inférieures et supérieures, il suffit de trouver la substitution ${alpha^i |-> nu}$  tel que $forall j, i^i_j lt.eq.not nu or nu lt.eq.not s^i_j or "is_debornée"(sigma_j (alpha^i))$.
+
+Si des variables apparaissent dans les substitutions, alors la chose se complique.
+On va d'abord trouver la variable $alpha^k$ dont les substitutions ne comprennent aucune variable de type, puis créer
+
+```ocaml
+let polyw t =
+if vars t = Ø
+ then {} 
+else let tally = Tally[(t, 𝟘)] in  
+ if tally =  Ø 
+ then ``` $limits(union.big)_(alpha in Vars(t)) {alpha |-> BigZero }$ ```ocaml
+ else
+ on choisit $𝛼𝑘$ 
+ on choisit $nu$ tq $forall_j, nu < inf_j^k or sup_j^k < nu or (inf_j^k == BigZero and sup_j^k == BigOne) and exists_(1<=i<=k-1), inf_j^k [alpha^k <- nu] lt.eq.not BigZero or sup_j^k [alpha^k <- nu] gt.eq.not BigOne$ \
+ let $sigma = {alpha^k |-> nu}$ in \
+ $sigma union polyw (t sigma)$
+```
+#let polyw_algo = $
+  polyw (t) = cases(
+    {} & "si" Vars(t) = emptyset,
+    limits(union.big)_(alpha in Vars(t)) {alpha |-> BigZero } & "si" Tally[(t, BigZero)] = emptyset,
+    sigma' r union r & "sinon",
+    & " où" & Tally[(t,BigZero)] = {(alpha, sigma(alpha)),...},
+    && s = sigma(alpha){alpha <- BigZero},
+    && sigma' = {alpha |-> not s},
+    && r = polyw(t sigma')
+  )
+$
 
 #pagebreak()
 

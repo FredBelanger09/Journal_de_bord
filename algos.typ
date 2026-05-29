@@ -14,7 +14,7 @@ ALGO POLYW :
 #let polyw_algo = $
   polyw (t) = cases(
     {} & "si" Vars(t) = emptyset,
-    union.big_(alpha in Vars(t)) {alpha |-> BigZero } & "si" Tally[(t, BigZero)] = emptyset,
+    limits(union.big)_(alpha in Vars(t)) {alpha |-> BigZero } & "si" Tally[(t, BigZero)] = emptyset,
     sigma' r union r & "sinon",
     & " où" & Tally[(t,BigZero)] = {(alpha, sigma(alpha)),...},
     && s = sigma(alpha){alpha <- BigZero},
