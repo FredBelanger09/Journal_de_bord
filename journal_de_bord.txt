@@ -112,3 +112,16 @@ Nouvelle méthode pour les variables de type ! Mais je sais pas à quel point el
 
 22/05/26 :
 On décide finalement de créer un semi-algorithme fonctionnel, se basant sur la décrémentation d'un type.
+
+26/05/26 -> 29/05/26 : oublié de noter
+On a trouvé un moyen de rendre l'algo décidable, en faisant un tally dans les substitutions du tally !
+
+
+01/06/26 : 
+Bug pour réussir à trouver le nu, essai de pleins de technique différentes
+
+02/06/26 :
+Mort du pollen
+
+03/06/26 :
+Implémentation de la nouvelle manière de trouver le nu, les tests marchent ! 

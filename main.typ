@@ -41,9 +41,10 @@
 = Introduction
 Le but du stage a été de créer une fonction permettant, pour tout type non-vide, de trouver un habitant de ce type, appelé témoin. Ce témoin permet d'afficher un exemple lors de la diffusion d'un message d'erreur pour mauvais typage.
 
-==== Exemple
-On a une fonction $f : Int -> Int$ et une variable $x : Int or Bool$. Alors l'application $f(x)$ est mal typée, car $Int or Bool "n'est pas un sous-type de" Int$. On cherche donc un témoin de $(Int or Bool) \\ Int = Bool$, ce qui peut rendre $True$ ou $False$. Pour des types plus complexes, on veut automatiser le processus, ce qui amène à l'algorithme "Witness" expliqué ici.
-
+#example()[
+  On a une fonction $f : Int -> Int$ et une variable $x : Int or Bool$. Alors l'application $f(x)$ est mal typée, car $Int or Bool "n'est pas un sous-type de" Int$. On cherche donc un témoin de $(Int or Bool) \\ Int = Bool$, ce qui peut rendre $True$ ou $False$.
+]
+Pour des types plus complexes, on veut automatiser le processus, ce qui amène à l'algorithme "Witness" expliqué ici.
 
 = Présentation des types ensemblistes
 
@@ -53,9 +54,9 @@ Les types utilisés dans ce rapport ont été introduits par M. Laurent, K. Nguy
 $ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
 Où $b in BeauB$ sont les cas de bases (en particuliers les constantes $c in BeauC$ ), $alpha in BeauV$ les variables de types, $BigZero$ le type vide et $BigOne$ le supertype de tout les types.
 
-==== Exemple :
-$t = (Int, (True -> False)) or 42$ est un type correct dans notre syntaxe.
-
+#example()[
+  $t = (Int, (True -> False)) or 42$ est un type correct dans notre syntaxe.
+]
 On définit $[|t|]$ comme l'ensemble des valeurs contenues dans t, ce qui nous permet de définir aussi la relation de sous-typage $t_1 lt.eq.slant t_2$ qui est vrai si et seulement si $[|t_1|] in [|t_2|]$. On peut noter qu'il existe des cas, comme $Bool$ et $Int$, où $Bool lt.eq.not Int$ et $Int lt.eq.not Bool$. On a aussi que $forall t, BigZero lt.eq.slant t lt.eq.slant BigOne$. On peut enfin définir l'égalité sémantique $t_1 ~= t_2$ comme étant vrai si et seulement si $t_1 lt.eq.slant t_2$ et $t_2 lt.eq.slant t_1$.
 
 Comme ces types sont définis co-inductivement, ils peuvent être définis comme des arbres infinis réguliers et contractifs.
@@ -68,15 +69,16 @@ Comme ces types sont définis co-inductivement, ils peuvent être définis comme
   Un arbre est dit *contractif* si une branche infinie passe forcément par un constructeur (ici, $->$ et $times$).
 ]<contractif>
 
-==== Exemple
-$t = Nil or (Int times t)$ sous forme d'arbre:
+#example()[
+  $t = Nil or (Int times t)$ sous forme d'arbre:
 
-#tidy-tree-graph(compact: false)[
-  - $\_ or \_$
-    - $Nil$
-    - $\_ times \_$
-      - $Int$
-      - $t$
+  #tidy-tree-graph(compact: false)[
+    - $\_ or \_$
+      - $Nil$
+      - $\_ times \_$
+        - $Int$
+        - $t$
+  ]
 ]
 
 On peut aussi représenter cela sous la forme d'un graphe cyclique en remplaçant la feuille $t$ par une flèche vers $\_or\_$. Ceci nous permet d'avoir une définition de type qui n'a pas besoin de définitions explicites pour la récursion.
@@ -140,9 +142,9 @@ $
 
 Un témoin est un habitant de notre type, c'est à dire une valeur constante appartenant à $[|t|]$. Notre but est, pour chaque cas de base, de trouver un habitant de ce cas, et pour chaque constructeur, de chercher récursivement un témoin pour chacune de ses parties.
 
-==== Exemple
-16 est un témoin de $Int or Bool$.
-
+#example()[
+  16 est un témoin de $Int or Bool$.
+]
 Pour trouver un habitant d'une fonction $f$ de type $t_1 -> t_2$, il faut un langage qui puisse prendre un habitant de $t_1$ et renvoyer le résultat de $f("Witness"(t_1)) = "Witness"(t_2)$.  On pourrait utiliser des $lambda$ termes mais cela serait complexes pour les types récursifs. Enfin, savoir que $42 -> 43$ est un habitant de $Any -> Int$ ne nous aide pas vraiment. Le procédé est donc complexe est contre-productif, nous avons donc choisis de considérer les types flèches (de la forme $or.big_i ( and.big_j p_1^(i j) -> p_2^(i j) and and.big_j not(n_1^(i j) -> n_2^(i j)))$) comme des cas de base. On notera
 $ A ::= and.big_i (p_1^i -> p_2^i) and and.big_j not(n_1^j -> n_2^j) $
 
@@ -155,9 +157,9 @@ On propose donc comme type témoin :
 $ w ::= c | A | (w,w) $<witness>
 
 
-==== Exemple :
-$w = (42, (True, False))$ est un témoin correct dans notre syntaxe.
-
+#example()[
+  $w = (42, (True, False))$ est un témoin correct dans notre syntaxe.
+]
 == Définition de type_of(w) et $w >> t$
 
 On peut donc créer l'algorithme type_of(w) qui pour tout témoin w renvoie le type t contenant uniquement w :
@@ -168,11 +170,11 @@ On peut étendre cet algorithme afin que pour tout témoin w, il renvoie le type
 
 #rule_w
 
-==== Exemple
-On veut montrer que $w = (3, (True, Int -> Int))$ est bien un témoin de $t = (Int, (Bool, BigZero -> BigOne))$ :
+#example()[
+  On veut montrer que $w = (3, (True, Int -> Int))$ est bien un témoin de $t = (Int, (Bool, BigZero -> BigOne))$ :
 
-#align(center, exemple_w2)
-
+  #align(center, exemple_w2)
+]
 = Algorithme
 
 == Présentation de l'algorithme
@@ -183,17 +185,17 @@ On peut maintenant décrire le fonctionnement de l'algorithme qui pour chaque ty
 
 Ici, $Delta$ est l'ensemble des types déjà visité par l'algorithme. Ainsi, si l'on retombe sur le même type, on sait que celui-ci est infini, donc vide (comme expliqué ici *RAJOUTER LIEN*). On interdit donc de repasser plusieurs par un type déjà visité avec la règle $t in.not Delta$.
 
-==== Exemple :
-On a $t = Int times ((Int -> Bool) or Nil)$
+#example()[ :
+  On a $t = Int times ((Int -> Bool) or Nil)$
 
-Cela nous donne l'arbre :
+  Cela nous donne l'arbre :
 
-#align(center, exemple_t1)
+  #align(center, exemple_t1)
 
-On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t = Int times ((Int -> Bool) or Nil)$ :
+  On peut ainsi vérifier que $w = (42, Int -> BigZero)$ est bien un témoin de $t = Int times ((Int -> Bool) or Nil)$ :
 
-#align(center, exemple_w1)
-
+  #align(center, exemple_w1)
+]
 == Preuve de terminaison de l'algorithme
 
 #theorem()[
@@ -257,17 +259,17 @@ Les atomes de tags sont des tuples avec un type Tag (équivalent à un type stri
 Les atomes de records sont de la forme $ r ::= {"bindings" : ("Label" times f) "map"; "tail" : f; "exists" : ("Label Set" times f ) "Map"} $
 - Ici, le type $f$ est une extension de notre type $t$ qui inclus les types optionnels (ex : $f = Int?$). On le définit comme $f in BigOne union bot$, $bot$ dénotant le type absent.
 - Le bindings est un champ où l'on place toutes les variables nommées de notre record.
-==== Exemple
-${x : Int; y : Int?; "prédicat" : Bool}$
-
+#example()[
+  ${x : Int; y : Int?; "prédicat" : Bool}$
+]
 - La tail $f'$ indique si notre record est ouvert ou fermé (donc s'il peut avoir des variables supplémentaires non nommées).
-==== Exemple
-${x : Int;" " y : Int;;" " Int?}$ pour un système de coordonnées à au moins 2 dimensions.
-
+#example()[
+  ${x : Int;" " y : Int;;" " Int?}$ pour un système de coordonnées à au moins 2 dimensions.
+]
 - Pour chaque paire $(L_i : e_i)$ de exists, $L_i$ indique les noms que la variables ne peut PAS prendre et $e_i and f'$ indique son type.
-==== Exemple
-${x : Int; y : Int;; Any?;; {w;z} : Bool?}$ pour indiquer que les variables $w$ et $z$ ne peuvent pas avoir le type $Bool$ si elles existent.
-
+#example()[
+  ${x : Int; y : Int;; Any?;; {w;z} : Bool?}$ pour indiquer que les variables $w$ et $z$ ne peuvent pas avoir le type $Bool$ si elles existent.
+]
 = Implémentation
 
 L'algorithme va essayer de trouver un témoin dans chacune des 6 grandes catégories (Int, Enum, Arrows, Tag, Tuple, Record) dans cet ordre, et s'arrêter dès qu'un est trouvé. Si aucun témoin n'est trouvé, on considère le type comme vide et on lève une exception.
@@ -318,21 +320,22 @@ Les Tags sont traités de la même manière que les n-uplets de taille 2, à l'e
 Pour générer un témoin, on va trouver un atome non vide de notre record, et opérer comme suit :
 
 - Pour chaque paire $(l_i : f_i)$ de bindings, si $f_i$ est requis, alors on cherche récursivement un témoin $w_i$ de $f_i$ et ajouter $(l_i : w_i)$ au bindings de notre témoin $w$.\
-==== Exemple
-${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$.
-
+#example()[
+  ${x : Int; y : Int?; "prédicat" : Bool}$ donnera ${x : 42; "prédicat" : True}$.
+]
 - Si la tail $f'$ est requise, on l'ajoute dans la tail de $w$.
 ==== Exemples
 + ${x : Int;;" " Bool}$ donnera ${x: 42;; True}$.\
 + ${x : Int;;" " Bool?}$ donnera ${x :42}$.
 - Pour chaque paire $(L_i : e_i)$ de exists, si $e_i and f$ est requis, alors on crée un label $l'_i in.not L_i$, on cherche récursivement un témoin $w'_i$ de $e_i and f$ et on ajoute $(l'_i : w'_i)$ *au bindings*.
-==== Exemple
-${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
+#example()[
+  ${x : Int; y : Int "";;"" Any? "" ;; "" {w;z} : Bool}$ donnera ${x : 42 "" ; "" y : 42 "" ; "" a : True}$
+]
 
-= Les variables de type
+
+= Variables de type $V_"finale"$
 
 == Définition
-
 On veut maintenant intégrer les variables de type dans notre recherche de témoin. On commence donc par étendre notre définition de t :
 
 $ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
@@ -349,163 +352,36 @@ $ w' ::= (sigma, w) $
 Avec $sigma$ l'ensemble des substitutions et w le témoin présenté à l'@witness.
 
 #definition()[
-  Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)] = {(alpha, sigma_1(alpha)),...}$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall (s_j, t_j) in (s,t), s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
+  Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)] = [[(alpha¹, sigma_1 (alpha¹)),..., (alpha^k, sigma_1 (alpha^k))] , ... , [(alpha¹, sigma_n (alpha¹)), ... , (alpha^k, sigma_n (alpha^k))]]$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall j lt.eq n, s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
+]
+#example()[
+
+  $Tally[((alpha, beta), BigZero)]&= [ [(alpha, BigZero), (beta, beta)],\
+    &"  " [(alpha, alpha), (beta, BigZero)]]\
+  &=[[{alpha |-> (BigZero or alpha) and BigZero}, {beta |-> (BigZero or beta) and BigOne}],\
+    & "  " [{alpha |-> (BigZero or alpha) and BigOne}, {beta |-> (BigZero or beta) and BigZero}]]$
+]
+#note()[
+  Les variables de types ont un ordre total $prec.eq$. Ainsi, une variable $alpha^i$ ne peut pas avoir dans sa substitution les variables $alpha^1,...,alpha^(i-1)$, i.e $forall i,j , forall k < i, alpha^k in.not Vars(sigma_j (alpha^i))$
 ]
 
-== Présentation de l'algorithme
-On a donc maintenant besoin d'implémenter l'algorithme, nommé polyw$(t)$ qui pour tout type t renvoie la substitution $sigma$ tel que $t sigma$ n'ai plus de variables de types et $t sigma$ ne soit pas vide.\
-On propose donc cet algorithme :
-
-#polyw_algo
-
-
-==== Exemple :
-Pour $alpha and beta$ on a :
-
-#ex_polyw1
-
-// A CHANGER ET REECRIRE #text(green)[
-//   #rule_polyw
-
-//   ==== Exemple :
-//   Pour $alpha and beta$ on a :
-
-//   #exemple_pw1
-
-
-// ]
-#theorem()[
-  Pour tout type $t$, polyw$(t)$ termine.
-]<polyw_terminaison>
-
-#proof()[
-  Montrons par disjonction de cas que soit $|Vars(t)|$ décroît, soit on est sur un cas de base, ce qui assure la terminaison de l'algorithme :
-
-  *Si $Vars(t) = emptyset$* : Comme il suffit de renvoyer la substitution identité, cela se fait en temps finit.
-
-  *Si $Tally[(t, BigZero)] = emptyset$* :  Récupérer les variable de type de t se fait en temps fini, donc produire $sigma = union.big_(alpha in Vars(t)) {alpha |-> BigZero}$ se fait en temps fini.
-
-  *Sinon* : La création de $sigma'$ est en temps fini. On sait que $sigma'$ n'est pas vide et qu'il s'applique à au moins un élément de t, donc on a bien $|Vars(t sigma')| lt |Vars(t)|$.
-
-  Donc par disjonction de cas et induction fondée sur l'ordre numérique de $|Vars(t)|$, pour tout type $t$, $polyw(t)$ termine.
-
-]
-#theorem()[
-  Pour tout type $t$ non vide, si $polyw(t) = sigma$, alors $Vars(t sigma) = emptyset$.
-]<vars1_polyw>
-
-#proof()[
-  Notre fonction $polyw$ a 2 cas de bases, et sa terminaison est assurée, donc il suffit de considérer uniquement eux :\
-  Si $Vars(t) = emptyset$ alors par définition, $Vars(t sigma) = emptyset$.\
-  Si $Tally[(t,BigZero)] = emptyset$ alors on a $sigma =union.big_(alpha in Vars(t)) {alpha |-> BigZero}$ donc par définition, $Vars(t sigma) = emptyset$.
-
-  Donc $forall t lt.eq.not BigZero, polyw(t) = sigma => Vars(t sigma) = emptyset$
+#note()[
+  L'algorithme de Tallying renvoie une réponse complète, c'est-à-dire qu'il n'existe pas de substitutions qui ne soient pas des sous-cas d'une des solutions et qui soit une solution au problème de tallying.
 ]
 
-#theorem()[
-  Pour tout type $t$ non vide, si $"poylw"(t) = sigma$, alors $t sigma lt.eq.not BigZero$.
-]<vars2_polyw>
 
-#proof()[
+#example()[
 
-  Montrons par induction que pour tout type $t lt.eq.not BigZero$, si $polyw(t) = sigma$, alors $t sigma lt.eq.not BigZero$ :
-
-  *Si $Vars(t) = emptyset$* :  Comme $t lt.eq.not BigZero$, si $sigma = {}$ alors $t = t sigma lt.eq.not BigZero$
-
-  *Si $Tally[(t, BigZero)] = emptyset$* : Par définition, on a $forall sigma, t sigma lt.eq.not BigZero$.
-
-  *Sinon* :\
-  On a $sigma(alpha) = (alpha or t_inf) and t_sup$\
-  $"Donc" not s = sigma(alpha){alpha <- BigZero} &= not ((BigZero or t_inf)and t_sup)\
-  &= not (BigZero or t_inf) or not t_sup\
-  &= not BigZero and not t_inf or not t_sup lt.eq.not BigZero$\
-  Donc $not s lt.eq.not BigZero "et" t lt.eq.not BigZero, "donc" t {alpha |-> not s} = t sigma' lt.eq.not BigZero$. CONDITION NECESSAIRE MAIS PAS SUFFISANTE ?
-
+  $Tally[(alpha\\ beta, BigZero)] &= [[(alpha, alpha and beta),(beta, beta)]]\
+  &= [[{alpha |-> (BigZero or alpha) and beta}, {beta |-> (BigZero or beta) and BigOne}]]$
 ]
-
-== Extension des règles de Witness
-
-On veut maintenant commencer notre algorithme en retirant tout les variables de type :
-
-#prooftree(var_t())
-
-==== Exemple :
-On a $t = alpha or beta$. Cela nous donne l'arbre :
-
-#exemple_pw2
-
-avec $polyw(alpha or beta)$ se déroulant comme suit :
-
-#ex_polyw2
-
-#lemma()[
-  L'algorithme Witness(t) termine toujours avec l'ajout de cette règle.
-]
-
-#proof()[
-  Il suffit de rajouter $s = 2 "si" |-a$ à la définition de s donné dans le @terminaison. Les autres règles ne changent pas, et on ajoute la preuve de sa décroissance pour la règle $"var"_t$ :
-
-  Pour $"var"_t$ : On sait que $polyw(alpha) = sigma$ termine par le @polyw_terminaison, et l'on passe de $s= 2$ à $s = 1$ car l'on passe d'une règle $|-a$ à une règle $|-s$, on a donc bien $(|beth|, u, 1) lt (|beth|, u, 2)$.
-
-  Donc notre algorithme termine toujours bien.
-]
-
-== Extension des règles de Type_of et $>>$
-
-
-On pour donc ajouter les 2 règles suivantes à type_of et $>>$ :
-
-#rule_var
-
-#lemma()[
-  L'ajout des nouvelles règles pour les variables de type n'invalide pas le @surete. ($"Si" emptyset |-a t ~> w "alors" w >> t$) CHANGEMENT DE $|-s à |-a !!$
-]
-#proof()[
-  On a toujours $P(t) ::= "Si" emptyset |-s t ~> w "alors" w >> t$.
-  On suppose $P(alpha sigma)$, montrons que $P(alpha)$ :
-
-  Supposons $alpha ~> (sigma,w)$, alors par var$""_t$, on a $polyw(alpha) = sigma$ et $alpha sigma ~> w$, or on sait que $P(alpha sigma)$ donc $w >> alpha sigma$. Par les @vars1_polyw et @vars2_polyw, on sait que $Vars(alpha sigma) = emptyset$ et $alpha sigma lt.eq.not emptyset$, donc par $"var"_w$, $(sigma, w) >> alpha$.
-
-  Donc notre théorème est toujours sûr.
-]
-
-= Variable de type : Electric boogaloo
-== Définition
-
-On veut maintenant intégrer les variables de type dans notre recherche de témoin. On commence donc par étendre notre définition de t :
-
-$ t ::= b | alpha | t -> t | t times t | t or t | t and t | not t | BigZero | BigOne $
-
-
 #definition()[
-  Un type $t$ est *non-vide* si et seulement si il existe une substitution $sigma$ tel que $t sigma lt.eq.not BigZero$.
+  On dit qu'une substitution $sigma_j$ est *débornée* pour une variable $alpha^i$ si on a $inf_j^i lt.eq.slant BigZero$ et $sup_j^i gt.eq.slant BigOne$. Cela veut dire que cette variable ne joue pas de rôle dans la substitution.
 ]
 
-On veut donc renvoyer une substitution $sigma$ et un témoin de $t sigma$, avec comme conditions que Vars($t sigma$) = $emptyset$, $t sigma lt.eq.not BigZero$ et Witness($t sigma$) $>> t sigma$.
-
-Notre témoin ressemblera donc à :
-$ w' ::= (sigma, w) $
-Avec $sigma$ l'ensemble des substitutions et w le témoin présenté à l'@witness.
-
-#definition()[
-  Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)] = [[(alpha¹, sigma_1(alpha¹)),..., (alpha^k, sigma_1(alpha^k))] , ... , [(alpha¹, sigma_n(alpha¹)), ... , (alpha^k, sigma_n(alpha^k))]]$) est un algoritmhe qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall j lt.eq n, s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
-
-  De plus, pour toute variable $alpha^i$, on ne peut trouver dans les bornes inférieures de sa substitution les variables $alpha^(i+1),...,alpha^k$. Ainsi, $t^k_inf "et" t^k_sup$ ne peuvent contenir aucune variables de type.
-
-  Enfin, si une variable n'est pas nécéssaire pour une substitution, on a ${alpha^i |-> (alpha^i or BigZero) and BigOne}$. On dit que la variable est débornée pour une substitution.
-]
-
-==== Exemple
-
-$Tally[((alpha, beta), BigZero)]&= [ \
-  &[(alpha, BigZero), (beta, beta)],\
-  &[(alpha, alpha), (beta, BigZero)]\
-]$
-
-En pratique, on représentera souvent le tallying sous la forme d'un tableau :
+En pratique on va représenter le tallying sous la forme d'un tableau :
 
 #grid(
-
   columns: 5,
   rows: 5,
   inset: (x: 15pt, y: 7pt),
@@ -516,63 +392,312 @@ En pratique, on représentera souvent le tallying sous la forme d'un tableau :
   [...], [...], [...], [...], [...],
   [$sigma_n$], [$i^1_n, s^1_n$], [$i^2_n, s^2_n$], [...], [$i^k_n,s^k_n$],
 )
+avec $i^i_j "et" s^i_j$ respectivement les bornes inférieures et supérieures de $sigma_j (alpha^i)$.
 
-Avec $forall i <= k', forall j, alpha_i in.not Vars(i^(k')_j) union Vars(s^(k')_j)$.
+#lemma()[
+  Toutes les substitutions de $Tally[(t, BigZero)]$ avec t non vide *sont bornées sur au moins une variable*. Sinon, elle serait équivalent à la substitution identité ${}$, donc $t{} lt.eq.slant BigZero$, donc t serait vide.
+]
 
-==== Exemple
+#example()[
 
-Pour $Tally[((alpha, beta), BigZero)]$ :
+  Pour $Tally[((alpha, not alpha), BigZero)]$ :
+
+  #grid(
+
+    columns: 3,
+    rows: 3,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha$], [$beta$],
+    [$sigma_1$], [$BigZero, BigZero$], [$BigZero, BigOne$],
+    [$sigma_2$], [$BigZero, BigOne$], [$BigZero, BigZero$],
+  )
+
+  Pour $Tally[(alpha \\ beta, BigZero)]$ :
+
+  #grid(
+
+    columns: 3,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha$], [$beta$],
+    [$sigma_1$], [$BigZero, beta$], [$BigZero, BigOne$],
+  )
+]
+== Présentation de l'algorithme
+
+On cherche à trouver la substitution $sigma$ tel que $Vars(t) = emptyset$ et $t sigma lt.eq.not BigZero$. On appelle cet algorithme $polyw(t)$
+
+On distingue 3 cas possibles :
+- Si $Vars(t) = emptyset$, on renvoie la substitution identité.
+- Si $Tally[(t, BigZero)]$, le type n'a aucune substitution qui puisse le vider, on substitution donc toutes les variables par un type arbitraire sans variable (ici $BigZero$) : $union.big_(alpha^i in Vars(t)) {alpha^i -> BigZero}$.
+- Sinon, on crée la substitution $sigma := {alpha^k -> nu}$ avec $alpha^k$ et $nu$ choisis correctement (et expliqués plus loin), et on renvoie $sigma union (t sigma).$
+
+Pour choisir correctement $alpha^k$ et $nu$ dans le dernier cas, on va donc utiliser le tallying, afin de déterminer quelle substitution ne vide *pas* notre type t.\
+
+On commence par choisir $alpha^k$ afin qu'il n'y ai aucune variable de type dans les substitutions associées. Notre substitution sera donc de la forme $sigma := {alpha^k -> nu}$ \
+
+=== Création du tableau de contraintes
+
+Une fois cela fait, on va créer un tableau contenant toutes les bornes dans lesquelles on ne veut *pas* que $nu$ soit, et ceci en 2 étapes :
+
+==== Colonne de $alpha^k$
+
+On va d'abord prendre la colonne $alpha^k$ dans le tableau du tallying :
 
 #grid(
-
-  columns: 3,
-  rows: 3,
+  columns: 2,
+  rows: 5,
   inset: (x: 15pt, y: 7pt),
   stroke: 1pt,
-  [], [$alpha$], [$beta$],
-  [$sigma_1$], [$BigZero, BigZero$], [$BigZero, BigOne$],
-  [$sigma_2$], [$BigZero, BigOne$], [$BigZero, BigZero$],
+  [], [$alpha^k$],
+  [$sigma_1$], [$i^k_1,s^k_1$],
+  [$sigma_2$], [$i^k_2,s^k_2$],
+  [...], [...],
+  [$sigma_n$], [$i^k_n,s^k_n$],
 )
+Puis supprimer les substitutions débornées, car alors la variable $alpha^k$ n'influe pas sur la substitution.
 
-#definition()[
-  On dit qu'une substitution $sigma_j$ est *débornée* pour une variable $alpha^i$ si on a $inf_j^i lt.eq.slant BigZero$ et $sup_j^i gt.eq.slant BigOne$. Cela veut dire que cette variable n'a pas de rôle dans la substitution. 
+#example()[
+  Pour $(alpha^1, not alpha^1) \\ (alpha², Int)$ : \
+  $Tally[((alpha^1, not alpha^1) \\ (alpha², Int), BigZero)] =$
+
+  #grid(
+
+    columns: 3,
+    rows: 4,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha^1$], [$alpha^2$],
+    [$sigma_1$], [$BigZero, BigZero$], [$BigZero, BigOne$],
+    [$sigma_2$], [$BigOne, BigOne$], [$BigZero, BigOne$],
+    [$sigma_3$], [$alpha^2 and Int, Int$], [$not Int, BigOne$],
+  )
+
+  On ne garde que la colonne $alpha^2$, et l'on supprime les cases débornées :
+
+  #grid(
+    columns: 2,
+    rows: 2,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha^2$],
+    [$sigma_1$], [$not Int, BigOne$],
+  )
 ]
+==== Ajout des substitutions liées
+
+// Ainsi, on supprime la colonne $alpha^k$ (car on a substitué $alpha^k$ par un type sans variable) ainsi que toute les lignes où $alpha^k$ est bornée (car il est maintenant impossible d'utiliser cette substitution afin de vider t).
+
+// #example()[
+// TROUVER MEILLEUR EXEMPLE
+
+// On a ce tableau de tallying :
+
+// #grid(
+
+//   columns: 3,
+//   rows: 3,
+//   inset: (x: 15pt, y: 7pt),
+//   stroke: 1pt,
+//   [], [$alpha$], [$beta$],
+//   [$sigma_1$], [$Bool or Int, BigOne$], [$BigZero, BigOne$],
+//   [$sigma_2$], [$BigZero, BigOne$], [$BigZero, Int$],
+// )
+
+// On prend la variable $beta$ et l'on construit $nu$. Par exemple, ici on peut avoir $nu = BigOne$. donc en construisant $sigma := {beta |-> BigOne}$ on a $Tally[(t sigma, BigZero)] =$
+
+
+// #box({
+//   grid(
+
+//     columns: 3,
+//     rows: 3,
+//     inset: (x: 15pt, y: 7pt),
+//     stroke: 1pt,
+//     [], [$alpha$], [$beta$],
+//     [$sigma_1$], $Bool or Int, BigOne$, [$BigZero, BigOne$],
+//     [$sigma_2$], [$BigZero, BigOne$], [$BigZero, Int$],
+//   )
+//   place(
+//     bottom + left,
+//     dy: -9pt,
+//     dx: -5pt,
+//     line(stroke: red, length: 43%),
+//   )
+//   place(
+//     top + right,
+//     dy: -5pt,
+//     dx: -30pt,
+//     line(stroke: red, start: (0pt, 0pt), end : (0pt, 75pt)),
+//   )
+// })
+
+// #text[=] #grid(
+//   columns: 2,
+//   rows: 2,
+//   inset: (x: 15pt, y: 7pt),
+//   stroke: 1pt,
+//   [], [$alpha$],
+//   [$sigma_1$], [$Bool or Int, BigOne$],
+// )
+
+// Ainsi, il suffit de relancer l'algorithme sur $t sigma$ et de renvoyer $sigma union polyw(t sigma)$.
+
+On veut maintenant prévenir le cas où substituer $alpha^k$ débornerai toutes les cases d'un ligne, donc transformerai le ligne en la substitution identité et donc rendrait le type vide. On cherche donc à ce que dans chaque ligne, après l'application de la substitution ${alpha^k -> nu}$, il existe au moins une case bornée.
+
+Pour cela, nous allons uniquement nous intéresser aux lignes où $alpha^k$ apparait dans une borne et où toutes les autres cases sont débornées. On choisit arbitrairement une borne dans laquelle $alpha^k$ apparait, et :
+- si c'est une borne inférieure appelée $i^i_j$, on rajoute la colonne $alpha^k$ de $Tally[(i^i_j, BigZero)]$ à notre tableau de contrainte.
+- Si c'est une borne supérieure $s^i_j$, on rajoute la colonne $alpha^k$ de $Tally[(BigOne, s^i_j)]$ à notre tableau de contrainte.
+
+Comme $alpha^k$ est toujours le dernier élément de son ordre total, il n'y a pas de variable de type dans les substitutions.
+
+#example()[
+  Pour $alpha^1 \\ alpha^2$ : \
+  $Tally[(alpha^1 \\ alpha^2, BigZero)] =$
+
+  #grid(
+
+    columns: 3,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha^1$], [$alpha^2$],
+    [$sigma_1$], [$BigZero, alpha^2$], [$BigZero, BigOne$],
+  )
+  On garde uniquement la colonne $alpha^2$ avec les cases bornées (ici aucunes):
+
+  #grid(
+
+    columns: 2,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha^2$],
+  )
+
+  Pour chaque ligne, on vérifie si toutes les cases sont débornées ou contiennent $alpha^2$ dans leur bornes (ici, la ligne $sigma_1$) et on rajoute les tallying respectifs :
+
+  $Tally[(BigOne, alpha^2)] =$
+  #grid(
+
+    columns: 2,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha^2$],
+    [$sigma_1$], [$BigZero, BigOne$],
+  )
+  On rajoute donc la colonne $alpha^2$ à notre tableau de contraintes (en rouge) :
+
+  #grid(
+
+    columns: 2,
+    inset: (x: 15pt, y: 7pt),
+    stroke: 1pt,
+    [], [$alpha^2$],
+    [], [#text(fill: red)[$BigOne, BigOne$]],
+  )
+]
+
+=== Créer $nu$ respectant ces contraintes
+
+On veut donc que pour case n du tableau de contrainte, $i^n lt.eq.not nu or nu lt.eq.not s^n$. On va donc créer un algorithme, nommé $createnu$ tel que pour tout tableau de contrainte correctement formé $"ts"$, $createnu("ts")$ renvoie $nu$ tel que $forall (i,s) in "ts", i lt.eq.not nu or nu lt.eq.not s$.
 
 #note()[
-  Toutes les substitutions de $Tally[(t, BigZero)]$ avec t non vide sont bornées sur au moins une variable. Sinon, elle serait équivalent à la substitution identité ${}$, donc $t{} lt.eq.slant BigZero$, donc t serait vide. .
+  On considère un tableau de contrainte comme *correctement formé* si un tel $nu$ existe, sinon cela voudrait dire qu'il n'existe aucun type $nu$ tel que $t[alpha^k <- nu] lt.eq.not BigZero$, ce qui est impossible.
+]
+
+#example()[
+  En continuant l'exemple de $alpha^1 \\ alpha^2$, on veut que $createnu[(BigOne, BigOne)]$ renvoie $nu$ tel que $BigOne lt.eq.not nu or nu lt.eq.not BigOne <=> nu != BigOne$. Donc n'importe quel type qui ne soit pas $BigOne$ est une solution acceptable.
 ]
 
 
-== Présentation de l'algorithme
-Notre but est donc, de créer un algorithme (nommé polyw) qui substitue les variables de type sans que le type ne finissent vide. En d'autres termes, il doit supprimer les colonnes du tableau sans que toutes les cases d'une lignes ne deviennent $BigZero$ et $BigOne$ (donc que la substitution identité ne soit pas une solution du tallying). Si aucune variable n'aparait dans les bornes inférieures et supérieures, il suffit de trouver la substitution ${alpha^i |-> nu}$  tel que $forall j, i^i_j lt.eq.not nu or nu lt.eq.not s^i_j or "is_debornée"(sigma_j (alpha^i))$.
 
-Si des variables apparaissent dans les substitutions, alors la chose se complique.
-On va d'abord trouver la variable $alpha^k$ dont les substitutions ne comprennent aucune variable de type, puis créer
 
-```ocaml
-let polyw t =
-if vars t = Ø
- then {} 
-else let tally = Tally[(t, 𝟘)] in  
- if tally =  Ø 
- then ``` $limits(union.big)_(alpha in Vars(t)) {alpha |-> BigZero }$ ```ocaml
- else
- on choisit $𝛼𝑘$ 
- on choisit $nu$ tq $forall_j, nu < inf_j^k or sup_j^k < nu or (inf_j^k == BigZero and sup_j^k == BigOne) and exists_(1<=i<=k-1), inf_j^k [alpha^k <- nu] lt.eq.not BigZero or sup_j^k [alpha^k <- nu] gt.eq.not BigOne$ \
- let $sigma = {alpha^k |-> nu}$ in \
- $sigma union polyw (t sigma)$
-```
-#let polyw_algo = $
-  polyw (t) = cases(
-    {} & "si" Vars(t) = emptyset,
-    limits(union.big)_(alpha in Vars(t)) {alpha |-> BigZero } & "si" Tally[(t, BigZero)] = emptyset,
-    sigma' r union r & "sinon",
-    & " où" & Tally[(t,BigZero)] = {(alpha, sigma(alpha)),...},
-    && s = sigma(alpha){alpha <- BigZero},
-    && sigma' = {alpha |-> not s},
-    && r = polyw(t sigma')
-  )
-$
+
+== Preuve de terminaison
+
+#theorem()[
+  Pour tout type non-vide, l'algorithme polyw termine en temps fini.
+]
+
+#proof()[
+  On peut distinguer 3 cas possibles pour notre algorithme :
+  - Si le type t n'a pas de variables de type : on renvoie la fonction identité, ce qui se fait en temps fini
+  - Si $Tally[(t, BigZero)]= emptyset$ : On renvoie la substitution$union.big_(alpha^i in Vars(t)) {alpha^i -> BigZero}$, ce qui se fait aussi en temps fini
+  - Sinon : \
+  Créer le tableau de contrainte se fait en temps fini, et la création de $nu$ aussi. comme il n'existait aucune variable de type dans les cases du tableau de contrainte, $nu$ n'en contient pas non plus, donc $Vars(t [alpha^k <- nu])$ contient strictement moins d'éléments que $Vars(t)$. Donc par un ordre numérique sur la taille de $Vars(t)$, notre algorithme termine bien.
+]
+
+== Preuves de sûretés
+
+#theorem()[
+  L'algorithme de création du $nu$ renvoie bien 
+]
+
+#theorem()[
+  Pour tout type $t$ non-vide, $polyw(t)$ renvoie une substitution $sigma$ tel que $Vars(t sigma) = emptyset and t sigma lt.eq.not BigZero$.
+]
+
+#proof()[
+
+  Comme nos 2 conditions d'arrêts s'assurent que $t sigma$ n'ait plus de variable de type, il est trivial de montrer que $polyw(t) = sigma$ renvoie bien une substitution telle que $Vars(t sigma) = emptyset$.
+
+  Montrons maintenant que l'algorithme ne peux pas renvoyer une substitution qui vide le type t :
+
+  Prouver que t ne deivens pas vide reviens à prouver qu'acune ligne du tableau de tallying ai toutes ses cases débornées, on va donc séparer celà en plusieurs cas :
+
+  *Si la case $alpha^k$ de la ligne est bornée : *
+  Comme le choix de $nu$ s'assure que $alpha^k$ sera substitué par quelque chose en dehors de ses bornes, la ligne est supprimée, donc on ne peut plus produire un type vide avec cette substitution.
+
+  *Si la case $alpha^k$ est débornée mais qu'aucune autre case de la ligne n'avait $alpha^k$ dans ses substitutions :*
+  Il y avait forcément une autre case bornée dans la ligne, donc quelque soit le $nu$ choisi, la substitution ne devient pas l'identité.
+
+  *Si la case $alpha^k$ est débornée, que $alpha^k$ apparait dans les bornes d'une autre case mais qu'une case dont les bornes ne contiennent pas $alpha^k$ est bornée :*
+  Même si le choix de $nu$ déborne d'autres cases, une case reste bornée, donc le type ne devient pas vide.
+
+  *Si la case $alpha^k$ est débornée, qu'$alpha^k$ apparaît dans les bornes d'une autre case et que toutes les autres cases sont débornées :*
+  Grâce à la partie du tableau de contrainte où l'on ajoute les contraintes des substitutions liées, le choix de $nu$ s'assure qu'au moins une case de la ligne ne soit pas déborné EXPLIQUER MIEUX
+
+  Donc quelque soit la forme de notre ligne de substitution, notre $nu$ s'assure que la ligne soit supprimée où qu'elle ne soit pas entièrement débornée. Donc notre type ne peut pas devenir vide, donc pour tout type t non-vide, on a $sigma := polyw(t)$ tel que $t sigma lt.eq.not BigZero$
+
+  // Lors de la création du tableau, on s'assure en 1er lieu que les substitutions où $alpha^k$ est bornée deviennent impossibles à faire, cela supprime donc ces lignes du tableau.
+
+  // #example()[
+  //   #box({
+  //     grid(
+
+  //       columns: 3,
+  //       rows: 3,
+  //       inset: (x: 15pt, y: 7pt),
+  //       stroke: 1pt,
+  //       [], [$alpha$], [$beta$],
+  //       [$sigma_1$], $Bool or Int, BigOne$, [$BigZero, BigOne$],
+  //       [$sigma_2$], [$BigZero, BigOne$], [$BigZero, Int$],
+  //     )
+  //     place(
+  //       bottom + left,
+  //       dy: -9pt,
+  //       dx: -5pt,
+  //       line(stroke: red, length: 43%),
+  //     )
+  //     place(
+  //       top + right,
+  //       dy: -5pt,
+  //       dx: -30pt,
+  //       line(stroke: red, start: (0pt, 0pt), end: (0pt, 75pt)),
+  //     )
+  //   })
+
+  //   #text[=] #grid(
+  //     columns: 2,
+  //     rows: 2,
+  //     inset: (x: 15pt, y: 7pt),
+  //     stroke: 1pt,
+  //     [], [$alpha$],
+  //     [$sigma_1$], [$Bool or Int, BigOne$],
+  //   )
+  // ]
+
+]
 
 #pagebreak()
 
