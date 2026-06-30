@@ -27,7 +27,7 @@
 #show: arkheion.with(
   title: "Rapport de stage",
   authors: (
-    (name: "Fred Belanger", email: "felix.belanger@universite-paris-saclay.fr", affiliation: ""),
+    (name: "Félix Belanger", email: "felix.belanger@universite-paris-saclay.fr", affiliation: ""),
   ),
   // Insert your abstract after the colon, wrapped in brackets.
   // Example: `abstract: [This is my abstract...]`
