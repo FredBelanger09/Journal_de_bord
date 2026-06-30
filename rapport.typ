@@ -101,7 +101,7 @@ Cette définition nous sera utile plus tard, lors de la création de l'algorithm
 
 == Existence d'une forme normale disjonctive
 
-En pratique, un type est toujours encodé sus la forme d'une DNF (forme normale disjonctive) :
+En pratique, un type est toujours encodé sous la forme d'une DNF (forme normale disjonctive) :
 $
   t ::= or.big_i b_i or or.big_i ( and.big_j (p_1^(i j) -> p_2^(i j)) and and.big_j not(n_1^(i j) -> n_2^(i j))) or or.big_i ( and.big_j (p_1^(i j) times p_2^(i j)) and and.big_j not(n_1^(i j) times n_2^(i j)))
 $
@@ -354,11 +354,11 @@ $ w' ::= (sigma, w) $
 Avec $sigma$ l'ensemble des substitutions et w le témoin présenté à l'@witness.
 
 #definition()[
-  Le *tallying* (noté $Tally[(s_1, t_1),..., (s_n,t_n)]$ $= [$ $[(alpha¹, sigma_1 (alpha¹))$,...,$(alpha^k, sigma_1 (alpha^k))]$,...,$[(alpha¹, sigma_n (alpha¹)), ... , (alpha^k, sigma_n (alpha^k) ) ] ]$ ) est un algorithme qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall j lt.eq n, s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
+  Le *tallying* (noté $Tally(s_1, t_1)=[[(alpha¹, sigma_1 (alpha¹)),...,(alpha^k, sigma_1 (alpha^k))],...,[(alpha¹, sigma_n (alpha¹)), ... , (alpha^k, sigma_n (alpha^k) ) ] ]$ ) est un algorithme qui renvoie toutes les substitutions $sigma$ tel que $forall sigma_i in sigma, forall j lt.eq n, s_j sigma_i lt.eq.slant t_j.$ Toutes les substitutions sont de la forme ${alpha |-> (alpha or t_inf) and t_sup}$ afin de borner efficacement l'algorithme.
 ]
 #example()[
 
-  $Tally[((alpha, beta), BigZero)]&= [ [(alpha, BigZero), (beta, beta)],\
+  $Tally((alpha, beta), BigZero)&= [ [(alpha, BigZero), (beta, beta)],\
     &"  " [(alpha, alpha), (beta, BigZero)]]\
   &=[[{alpha |-> (BigZero or alpha) and BigZero}, {beta |-> (BigZero or beta) and BigOne}],\
     & "  " [{alpha |-> (BigZero or alpha) and BigOne}, {beta |-> (BigZero or beta) and BigZero}]]$
@@ -374,7 +374,7 @@ Avec $sigma$ l'ensemble des substitutions et w le témoin présenté à l'@witne
 
 #example()[
 
-  $Tally[(alpha\\ beta, BigZero)] &= [[(alpha, alpha and beta),(beta, beta)]]\
+  $Tally(alpha\\ beta, BigZero) &= [[(alpha, alpha and beta),(beta, beta)]]\
   &= [[{alpha |-> (BigZero or alpha) and beta}, {beta |-> (BigZero or beta) and BigOne}]]$
 ]
 #definition()[
@@ -397,7 +397,7 @@ En pratique on va représenter le tallying sous la forme d'un tableau :
 avec $i^i_j "et" s^i_j$ respectivement les bornes inférieures et supérieures de $sigma_j (alpha^i)$.
 
 #lemma()[
-  Toutes les substitutions de $Tally[(t, BigZero)]$ avec t non vide *sont bornées sur au moins une variable*. Sinon, elle serait équivalent à la substitution identité ${}$, donc $t{} lt.eq.slant BigZero$, donc t serait vide.
+  Toutes les substitutions de $Tally(t, BigZero)$ avec t non vide *sont bornées sur au moins une variable*. Sinon, elle serait équivalente à la substitution identité ${}$, donc $t{} lt.eq.slant BigZero$, donc t serait vide.
 ]
 
 #example()[
@@ -428,11 +428,11 @@ avec $i^i_j "et" s^i_j$ respectivement les bornes inférieures et supérieures d
 ]
 == Présentation de l'algorithme
 
-On cherche à trouver la substitution $sigma$ tel que $Vars(t) = emptyset$ et $t sigma lt.eq.not BigZero$. On appelle cet algorithme $polyw(t)$
+On cherche à trouver la substitution $sigma$ tel que $Vars(t) = emptyset$ et $t sigma lt.eq.not BigZero$. On appelle cet algorithme $polyw(t)$.
 
 On distingue 3 cas possibles :
 - Si $Vars(t) = emptyset$, on renvoie la substitution identité.
-- Si $Tally[(t, BigZero)] = emptyset$, le type n'a aucune substitution qui puisse le vider, on substitution donc toutes les variables par un type arbitraire sans variable (ici $BigZero$) : $union.big_(alpha^i in Vars(t)) {alpha^i -> BigZero}$.
+- Si $Tally[(t, BigZero)] = emptyset$, le type n'a aucune substitution qui puisse le vider, on substitue donc toutes les variables par un type arbitraire sans variable (ici $BigZero$) : $union.big_(alpha^i in Vars(t)) {alpha^i -> BigZero}$.
 - Sinon, on crée la substitution $sigma := {alpha^k -> nu}$ avec $alpha^k$ et $nu$ choisis correctement (et expliqués plus loin), et on renvoie $sigma union polyw(t sigma).$
 
 Pour choisir correctement $alpha^k$ et $nu$ dans le dernier cas, on va donc utiliser le tallying, afin de déterminer quelle substitution ne vide *pas* notre type t.\
@@ -489,10 +489,10 @@ Puis supprimer les substitutions débornées, car alors la variable $alpha^k$ n'
 ]
 ==== Ajout des substitutions liées
 
-On veut maintenant prévenir le cas où substituer $alpha^k$ débornerai toutes les cases d'un ligne, donc transformerai le ligne en la substitution identité et donc rendrait le type vide. On cherche donc à ce que dans chaque ligne, après l'application de la substitution ${alpha^k -> nu}$, il existe au moins une case bornée.
+On veut maintenant prévenir le cas où substituer $alpha^k$ débornerai toutes les cases d'une ligne, et transformerai donc la ligne en la substitution identité, ce qui équivaut à créer le type vide. On cherche donc à ce que dans chaque ligne, après l'application de la substitution ${alpha^k -> nu}$, il existe au moins une case bornée.
 
 Pour cela, nous allons uniquement nous intéresser aux lignes où $alpha^k$ apparaît dans une borne et où toutes les autres cases sont débornées. On choisit arbitrairement une borne dans laquelle $alpha^k$ apparaît, et :
-- si c'est une borne inférieure appelée $i^i_j$, on rajoute la colonne $alpha^k$ de $Tally[(i^i_j, BigZero)]$ à notre tableau de contrainte.
+- si c'est une borne inférieure $i^i_j$, on rajoute la colonne $alpha^k$ de $Tally[(i^i_j, BigZero)]$ à notre tableau de contrainte.
 - Si c'est une borne supérieure $s^i_j$, on rajoute la colonne $alpha^k$ de $Tally[(BigOne, s^i_j)]$ à notre tableau de contrainte.
 
 Comme $alpha^k$ est toujours le dernier élément de son ordre total, il n'y a pas de variable de type dans les substitutions.
@@ -513,10 +513,10 @@ Comme $alpha^k$ est toujours le dernier élément de son ordre total, il n'y a p
 
   #grid(
 
-    columns: 2,
+    columns: 1,
     inset: (x: 15pt, y: 7pt),
     stroke: 1pt,
-    [], [$alpha^2$],
+    [$alpha^2$],
   )
 
   Pour chaque ligne, on vérifie si toutes les cases sont débornées ou contiennent $alpha^2$ dans leur bornes (ici, la ligne $sigma_1$) et on rajoute les tallying respectifs :
@@ -534,11 +534,11 @@ Comme $alpha^k$ est toujours le dernier élément de son ordre total, il n'y a p
 
   #grid(
 
-    columns: 2,
+    columns: 1,
     inset: (x: 15pt, y: 7pt),
     stroke: 1pt,
-    [], [$alpha^2$],
-    [], [#text(fill: red)[$BigOne, BigOne$]],
+    [$alpha^2$],
+    [#text(fill: red)[$BigOne, BigOne$]],
   )
 ]
 
@@ -651,7 +651,7 @@ On peut donc representer nos contraintes comme l'ensemble de tout les chemins en
   node((1, 4), $BigOne$),
 )
 
-Créer un $nu$ respectant ces contraintes revient donc à trouver un point n'étant sur aucun chemin de contrainte
+Créer un $nu$ respectant ces contraintes revient donc à trouver un point n'étant sur aucun chemin de contrainte.
 
 #example()[
   On a le tableau de contrainte suivant :
@@ -666,63 +666,63 @@ Créer un $nu$ respectant ces contraintes revient donc à trouver un point n'ét
   )
   Alors le treillis ressemblera à ça :
 
-#diagram(
-  node-defocus: 0,
-  spacing: (1cm, 2cm),
-  edge-stroke: 1pt,
-  crossing-thickness: 5,
+  #diagram(
+    node-defocus: 0,
+    spacing: (1cm, 2cm),
+    edge-stroke: 1pt,
+    crossing-thickness: 5,
 
-  node((0, 0), text(red,$BigOne$)),
+    node((0, 0), text(red, $BigOne$)),
 
-  node((-1, 1), text(red,$Int or Enum$)),
-  node((0, 1), $Int or Tuple$),
-  node((+1, 1), text(red,$Enum or Tuple$)),
+    node((-1, 1), text(red, $Int or Enum$)),
+    node((0, 1), $Int or Tuple$),
+    node((+1, 1), text(red, $Enum or Tuple$)),
 
-  node((-1, 2), text(red,$Int$)),
-  node((0, 2), text(red,$Enum$)),
-  node((+1, 2), $Tuple$),
+    node((-1, 2), text(red, $Int$)),
+    node((0, 2), text(red, $Enum$)),
+    node((+1, 2), $Tuple$),
 
-  node((0, 3), text(red, $BigZero$)),
-  node((-0.25, 2.5), "..."),
-  node((0.25, 2.5), "..."),
-  node((-1, 2.5), $...$),
-  node((1, 2.5), $...$),
-  node((-1, 0.5), $...$),
-  node((1, 0.5), $...$),
+    node((0, 3), text(red, $BigZero$)),
+    node((-0.25, 2.5), "..."),
+    node((0.25, 2.5), "..."),
+    node((-1, 2.5), $...$),
+    node((1, 2.5), $...$),
+    node((-1, 0.5), $...$),
+    node((1, 0.5), $...$),
 
-  {
-    let quad(a, b, ..args) = {
-      edge(a, b, "..", ..args)
-    }
+    {
+      let quad(a, b, ..args) = {
+        edge(a, b, "..", ..args)
+      }
 
-    edge((0, 0), (-1, 1), stroke : red)
-    quad((0, 1), (-1, 2))
-    quad((1, 2), (0, 3))
+      edge((0, 0), (-1, 1), stroke: red)
+      quad((0, 1), (-1, 2))
+      quad((1, 2), (0, 3))
 
-    quad((0, 0), (0, 1))
-    quad((-1, 1), (-1, 2))
-    quad((+1, 1), (+1, 2))
-    quad((0, 2), (0, 3))
+      quad((0, 0), (0, 1))
+      quad((-1, 1), (-1, 2))
+      quad((+1, 1), (+1, 2))
+      quad((0, 2), (0, 3))
 
-    edge((0, 0), (1, 1), stroke : red)
-    edge((-1, 1), (0, 2), "crossing", stroke : red)
+      edge((0, 0), (1, 1), stroke: red)
+      edge((-1, 1), (0, 2), "crossing", stroke: red)
 
-    edge((-1, 2), (0, 3), stroke : red)
-    quad((0, 1), (+1, 2))
+      edge((-1, 2), (0, 3), stroke: red)
+      quad((0, 1), (+1, 2))
 
-    edge((1, 1), (0, 2), "crossing", stroke : red)
+      edge((1, 1), (0, 2), "crossing", stroke: red)
 
-    quad((0, 3), (0.25, 2.5))
-    quad((0, 3), (-0.25, 2.5))
+      quad((0, 3), (0.25, 2.5))
+      quad((0, 3), (-0.25, 2.5))
 
-    quad((-1, 2), (-1, 2.5))
-    quad((1, 2), (1, 2.5))
-    quad((-1, 1), (-1, 0.5))
-    quad((1, 1), (1, 0.5))
-  },
-)
+      quad((-1, 2), (-1, 2.5))
+      quad((1, 2), (1, 2.5))
+      quad((-1, 1), (-1, 0.5))
+      quad((1, 1), (1, 0.5))
+    },
+  )
 
-Donc des solutions comme \"a\", $Tuple$, $42 or (Int, Enum)$ sont des bons $nu$, mais $Enum or [0, +oo[$ ou $BigOne$ videraient le type.
+  Donc des solutions comme \"a\", $Tuple$, $42 or (Int, Enum)$ sont des bons $nu$, mais $Enum or [0, +oo[$ ou $BigOne$ videraient le type.
 
 
 ]
@@ -763,7 +763,8 @@ Créer l'algorithme permettant de trouver ces types s'est avéré très compliqu
 
 #proof()[
 
-  Comme nos 2 conditions d'arrêts s'assurent que $t sigma$ n'ait plus de variable de type, il est trivial de montrer que $polyw(t) = sigma$ renvoie bien une substitution telle que $Vars(t sigma) = emptyset$.
+
+  La terminaison de notre algorithme est fondée sur la diminution du nombre de variable de type, et nos 2 conditions d'arrêts s'assurent que $t sigma$ n'ait plus de variable de type, il est donc trivial de montrer que $polyw(t) = sigma$ renvoie bien une substitution telle que $Vars(t sigma) = emptyset$.
 
   Montrons maintenant que l'algorithme ne peux pas renvoyer une substitution qui vide le type t :
 

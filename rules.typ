@@ -135,7 +135,7 @@ Tree for $t = (Int, (Int -> Bool) or Nil)$ :
   name: $times_t$,
   rule(
     name: $Int in.not Delta$,
-    t_base(Delta: $Delta = {Int}$, typ: Int, wit: $w_1$, con: $42$),
+    t_base(Delta: ${Int}$, typ: Int, wit: $w_1$, con: $42$),
     [$|-m Int ~> w_1$],
   ),
   rule(
